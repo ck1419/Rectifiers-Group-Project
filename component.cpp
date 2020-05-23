@@ -9,6 +9,7 @@ class base_class
     protected:
         string node1, node2, name; 
         char type;
+        float value;
 
     public:
         virtual vector<string>  return_nodes(){
@@ -31,9 +32,6 @@ class base_class
 //Class for RCL components
 class basic_component: public base_class
 {
-    protected:
-        float value;
-
     public:
         //Constructor
         basic_component(char c_type, float c_value, string c_node1, string c_node2, string c_name){
@@ -67,6 +65,7 @@ class source: public base_class
 {
     protected:
         string output_type;
+        float frequency;
 
     public:
         //Constructor
@@ -88,6 +87,9 @@ class source: public base_class
             }
             if (output_type == "square"){
                 return 1;
+            }
+            if (output_type == "DC"){
+                return value;
             }
         }
 };
