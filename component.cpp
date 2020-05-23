@@ -65,16 +65,19 @@ class source: public base_class
 {
     protected:
         string output_type;
-        float frequency;
+        float frequency, amplitude;
 
     public:
         //Constructor
-        source(char c_type, string c_output_type, string c_node1, string c_node2, string c_name){
+        source(char c_type, string c_output_type, string c_node1, string c_node2, string c_name, float c_frequency, float c_value, float c_amplitude){
             type = c_type;
             output_type = c_output_type;
             node1 = c_node1;
             node2 = c_node2;
             name = c_name;
+            frequency = c_frequency;
+            value = c_value;
+            amplitude = c_amplitude;
         }
 
         //Placeholder for variable output depending on source type
