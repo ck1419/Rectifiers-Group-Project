@@ -18,6 +18,22 @@ done 1) Take in components and sources from netlist (current sources and voltage
 
 */
 
+
+//Search vector for a node, and adds it to the vector if the node isn't found
+vector<string> add_node(string node, vector<string> array){
+    bool not_found = true;
+    for(int i=0; i<array.size(); i++){
+        if (array[i] == node){
+            not_found = false;
+        }
+    }
+    if (not_found){
+        array.push_back(node);
+    }
+    return array;
+}
+
+
 int main() {
 
     string input;
@@ -68,14 +84,9 @@ int main() {
         }
         */
 
-        //Add nodes to a vector (version2)
-        if (find(nodes.begin(), nodes.end(), node1) == nodes.end()) {
-            nodes.push_back(node1);
-        }
-        if (find(nodes.begin(), nodes.end(), node2) == nodes.end()) {
-            nodes.push_back(node2);
-        }
-        
+        //Add nodes to a vector (version3)
+        nodes = add_node(node1, nodes);
+        nodes = add_node(node2, nodes);
 
         input.clear();
     }
