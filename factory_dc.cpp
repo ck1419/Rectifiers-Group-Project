@@ -1,4 +1,4 @@
-#include "component.cpp"
+#include "component.hpp"
 #include <iostream>
 #include <sstream>
 
