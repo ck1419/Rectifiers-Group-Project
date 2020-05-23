@@ -58,8 +58,6 @@ int main() {
         ss >> node2;
         ss >> value;
 
-        //cerr << name << " " << node1 << " " << node2 << " " << value << endl;
-
         bool is_component = (name[0] == 'R'); //support for C and L comes later
         bool is_source = (name[0] == 'I'); //support for voltage sources come later
 
@@ -71,18 +69,6 @@ int main() {
         } else {
             //exit(1);
         }
-
-        /*
-        //Add nodes to a vector (version1)
-        std::vector<string>::iterator it = find(nodes.begin(), nodes.end(), node1);
-        if (it == nodes.end()) {
-            nodes.push_back(node1);
-        }
-        it = find(nodes.begin(), nodes.end(), node2);
-        if (it == nodes.end()) {
-            nodes.push_back(node2);
-        }
-        */
 
         //Add nodes to a vector (version3)
         nodes = add_node(node1, nodes);
@@ -105,10 +91,59 @@ int main() {
         cerr << " " << sources[i].return_value(0) << endl;
     }
     cerr << endl << "Print nodes" << endl;
-    for (int i=0; i<nodes.size(); i++) {
+    for (int i=0; i<nodes.size(); i++) { //print nodes
         cerr << nodes[i] << " ";
     }
     cerr << endl;
+
+    /////////ARRAY STORAGE/////////
+    const int h = nodes.size();
+    const int w = nodes.size();
+    float g_matrix [h][w];
+
+    //////////TEMPORARY VARIABLES FOR ARRAY//////////
+    string node_label;
+    float conductance = 0;
+    string node_label_one;
+    string node_label_two;
+
+    //////////NOW BEGIN INSERTING INTO ARRAY//////////
+    //First insert diagonal entries
+    for (int i=0; i<nodes.size(); i++) {
+        node_label = nodes[i];
+        for (int j=0; j<components.size(); j++) {
+            if((components[j].return_nodes()[0] == node_label) || (components[j].return_nodes()[1] == node_label)) {
+                conductance += 1/(components[j].return_value(0));
+            }
+        }
+        g_matrix [i][i] = conductance;
+        conductance = 0;
+    }
+
+    //Now deal with upper triangular
+    for (int i=1; i<nodes.size(); i++) { //going across
+        node_label_one = nodes[i];
+        for (int j=0; j<i; j++) { //going downwards
+            node_label_two = nodes[j];
+            for(int k=0; k<components.size(); k++) {
+                bool between = ((components[k].return_nodes()[0] ==  node_label_one) && (components[k].return_nodes()[1] ==  node_label_two)) || ((components[k].return_nodes()[1] ==  node_label_one) && (components[k].return_nodes()[0] ==  node_label_two));
+                if (between) {
+                    conductance += 1/(components[k].return_value(0));
+                }
+            }
+            g_matrix [j][i] = -conductance;
+            g_matrix [i][j] = -conductance;
+            conductance = 0;
+        }
+    }
+
+    //////////TEST PRINT ARRAY//////////
+    for (int i=0; i<w; i++) {
+        for (int j=0; j<h; j++) {
+            cerr << g_matrix [i][j] << " ";
+        }
+        cerr << endl;
+    }
 
 }
 
