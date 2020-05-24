@@ -3,11 +3,32 @@ using namespace std;
 
 
 
-vector<string>  base_class::return_nodes(){
-    vector<string> temp;
+vector<int> node::return_nodes(){
+    return connected_nodesID;
+}
+
+
+
+void node::add_node(int ID){
+    bool not_found = true;
+    for(int i=0; i<connected_nodesID.size(); i++){
+        if (connected_nodesID[i]==ID)
+        {
+            not_found = false;
+        }
+        if (not_found){
+            connected_nodesID.push_back(ID);
+        }
+    }
+}
+
+
+
+vector<node*> base_class::return_nodes(){
+    vector<node*> temp;
     temp.push_back(node1);
     temp.push_back(node2);
-    if (!node3.empty()){
+    if (node3_exists){
         temp.push_back(node3);
     }
     return temp;
@@ -81,11 +102,4 @@ float nonlinear_component::return_value(float v_old, float R, float VA){
 
 float nonlinear_component::return_old_value(){
     return old_value;
-}
-
-
-
-
-float shockley(float v_old, float Va, float R){
-    
 }

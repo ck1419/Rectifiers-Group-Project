@@ -7,18 +7,43 @@
 using namespace std;
 
 
+class node
+{
+    protected:
+        vector<int> connected_nodesID;        //Linked via int IDs
+        int ID;
+
+    public:
+        //Constructor
+        node(string c_ID, int ID1, int ID2){
+            ID = stoi( c_ID.erase('N') );
+            connected_nodesID.push_back(ID1);
+            connected_nodesID.push_back(ID2);
+        }
+
+        //Returns connected nodes
+        vector<int> return_nodes();
+
+        //Add connected nodes if it isn't included already
+        void add_node(int ID);
+};
 
 //Base class just for inherited functionality so everything can use the same methods when iterating through arrays of components
 class base_class
 {
     protected:
-        string node1, node2, node3, name;
+        node* node1;
+        node* node2;
+        node* node3;    //Optional for BJTs
+        string name;       
+        float current, voltage;
         char type;
         float value;
+        bool node3_exists = false;
 
     public:
         //Returns the nodes the component is connected to in a vector
-        virtual vector<string> return_nodes();
+        virtual vector<node*> return_nodes();
 
         //Returns type of component
         virtual char return_type();
@@ -31,7 +56,7 @@ class basic_component: public base_class
 {
     public:
         //Constructor
-        basic_component(char c_type, float c_value, string c_node1, string c_node2, string c_name){
+        basic_component(char c_type, float c_value, node *c_node1, node *c_node2, string c_name){
             type = c_type;
             value = c_value;
             node1 = c_node1;
@@ -54,7 +79,7 @@ class source: public base_class
 
     public:
         //Constructor
-        source(char c_type, string c_output_type, string c_node1, string c_node2, string c_name, float c_frequency, float c_value, float c_amplitude){
+        source(char c_type, string c_output_type, node *c_node1, node *c_node2, string c_name, float c_frequency, float c_value, float c_amplitude){
             type = c_type;
             output_type = c_output_type;
             node1 = c_node1;
@@ -80,7 +105,7 @@ class nonlinear_component: public base_class
     
     public:
         //Constructor for diodes
-        nonlinear_component(char c_type, float c_value, string c_node1, string c_node2, string c_name, string c_model){
+        nonlinear_component(char c_type, float c_value, node *c_node1, node *c_node2, string c_name, string c_model){
             type = c_type;
             value = c_value;
             node1 = c_node1;
@@ -90,7 +115,7 @@ class nonlinear_component: public base_class
         }
 
         //Constructor for transistors
-        nonlinear_component(char c_type, float c_value, string c_node1, string c_node2, string c_node3, string c_name, string c_model){
+        nonlinear_component(char c_type, float c_value, node *c_node1, node *c_node2, node *c_node3, string c_name, string c_model){
             type = c_type;
             value = c_value;
             node1 = c_node1;
@@ -98,6 +123,7 @@ class nonlinear_component: public base_class
             node3 = c_node3;
             name = c_name;
             model = c_model;
+            node3_exists = true;
         }
 
         //Returns value of previous iteration;
