@@ -1,9 +1,10 @@
 #include "component.hpp"
 #include <iostream>
 #include <sstream>
+#include <Eigen/Dense>
 
-/* 
-
+using Eigen::MatrixXd;
+/*
 //////////ALGORITHM for circuits with only resistors and current sources//////////
 
 done 1) Take in components and sources from netlist (current sources and voltage sources work in a totally different way tho)
