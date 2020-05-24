@@ -9,6 +9,12 @@ vector<node*> node::return_nodes(){
 
 
 
+vector<base_class*> node::return_components(){
+    return connected_components;
+}
+
+
+
 int node::return_ID(){
     return ID;
 }
@@ -30,6 +36,21 @@ void node::add_node(node *c_node){
 
 
 
+void node::add_component(base_class *c_component){
+    bool not_found = true;
+    for(int i=0; i<connected_components.size(); i++){
+        if (connected_components[i]->return_name() == c_component->return_name())
+        {
+            not_found = false;
+        }
+    }
+    if (not_found){
+        connected_components.push_back(c_component);
+    }
+}
+
+
+
 vector<node*> base_class::return_nodes(){
     vector<node*> temp;
     temp.push_back(node1);
@@ -44,6 +65,12 @@ vector<node*> base_class::return_nodes(){
 
 char base_class::return_type(){
     return type;
+}
+
+
+
+string base_class::return_name(){
+    return name;
 }
 
 

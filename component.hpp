@@ -7,10 +7,16 @@
 using namespace std;
 
 
+
+//Declaration so base_class is usable in node
+class base_class;
+
+//Class for storing info about nodes
 class node
 {
     protected:
-        vector<node*> connected_nodes;        //Linked via int IDs
+        vector<node*> connected_nodes;  //Pointer to connected nodes
+        vector<base_class*> connected_components;   //Pointer to connected components
         int ID;
 
     public:
@@ -22,12 +28,20 @@ class node
         //Returns connected nodes
         vector<node*> return_nodes();
 
+        //Returns connected components
+        vector<base_class*> return_components();
+
         //Returns ID of current node
         int return_ID();
 
         //Add connected nodes if it isn't included already
-        void add_node(node* c_node);
+        void add_node(node *c_node);
+
+        //Add base class connected to this component (For more efficient current calculations)
+        void add_component(base_class *c_component);
 };
+
+
 
 //Base class just for inherited functionality so everything can use the same methods when iterating through arrays of components
 class base_class
@@ -37,9 +51,8 @@ class base_class
         node* node2;
         node* node3;    //Optional for BJTs
         string name;       
-        float current, voltage;
+        float current, voltage, value;
         char type;
-        float value;
         bool node3_exists = false;
         bool current_found = false;
 
@@ -50,8 +63,13 @@ class base_class
         //Returns type of component
         virtual char return_type();
 
+        //Returns name of the current component
+        virtual string return_name();
+
+        //Returns current if inductor, voltage if capacitor
         virtual float return_value(float t) =0;
 
+        //Sets the current going through the component
         virtual void set_current(float i);
 
         //Returns 1 if current is set, 0 if current is still not found;
