@@ -82,6 +82,12 @@ void base_class::set_current(float i){
 
 
 
+float base_class::return_current(){
+    return current;
+}
+
+
+
 bool base_class::current_calculated(){
     return current_found;
 }

@@ -22,7 +22,7 @@ class node
     public:
         //Constructor
         node(int c_ID){
-            ID = c_ID;
+            ID = c_ID;      //ID = 0 for ground/reference node
         }
 
         //Returns connected nodes
@@ -71,6 +71,9 @@ class base_class
 
         //Sets the current going through the component
         virtual void set_current(float i);
+
+        //Returns current accross component
+        virtual float return_current();
 
         //Returns 1 if current is set, 0 if current is still not found;
         virtual bool current_calculated();
