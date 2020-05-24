@@ -44,9 +44,30 @@ float source::return_value(float t){
 
 
 
-float nonlinear_component::return_value(float v, int n){
+float nonlinear_component::return_value(float v_old, float R, float VA){
+    /*
+    SOURCE: http://www.kennethkuhn.com/students/ee351/diode_solution.pdf
+    Shockley's ideal diode equation for newton-rahpson iterative method      
+            IS * (exp(VD/nVT) - 1) - VA/R + VD/R
+    V_new = -------------------------------------
+                (IS/nVT) * exp(VD/nVT) + 1/R
+    Is = Reverse saturation current of diode
+    VD (v_old) = Voltage across diode
+    nVT = Thermal voltage
+    VA = Applied voltage
+    R = Resistance
+    V_new = New voltage across diode
+    */
     if (model == "D"){
-        return 1;
+        float old_value = v_old;
+
+        float Is = 3e-9;         //Placeholder value
+        float nVt = 0.05;        //Placeholder value
+        float top = Is * ( pow(M_E, v_old/nVt)-1 ) - (VA/R) + (v_old/R);
+        float bottom = (Is/nVt) * pow(M_E, v_old/nVt) + (1/R);
+        float v_new = top/bottom;
+
+        return v_new;
     }
     if (model == "NPN"){
         return 1;
@@ -60,4 +81,11 @@ float nonlinear_component::return_value(float v, int n){
 
 float nonlinear_component::return_old_value(){
     return old_value;
+}
+
+
+
+
+float shockley(float v_old, float Va, float R){
+    
 }

@@ -103,8 +103,8 @@ class nonlinear_component: public base_class
         //Returns value of previous iteration;
         float return_old_value();
 
-        //Returns approximate linear approximation via newton-rhapson method (TODO)
-        float return_value(float v, int n);
+        //Returns approximate linear approximation via newton-rhapson method (ADD TRANSISTOR FUNCTIONALITY)
+        float return_value(float v_old, float R, float VA);
 };
 
 
