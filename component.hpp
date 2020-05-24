@@ -12,7 +12,7 @@ using namespace std;
 class base_class
 {
     protected:
-        string node1, node2, name; 
+        string node1, node2, node3, name;
         char type;
         float value;
 
@@ -23,8 +23,11 @@ class base_class
         //Returns type of component
         virtual char return_type();
 
-        //Returns the value of the component. DC Bias for sources, Ohm/Farad/Henry for RCL
+        //Returns the value of the component that depends on time
         virtual float return_value(float t) =0;
+        
+        //Returns value for non-linear components that requires approximation using voltage across component (v)
+        virtual float return_value(float v) =0;
 };
 
 
@@ -44,8 +47,6 @@ class basic_component: public base_class
 
         //Returns value of component
         float return_value(float t);
-
-
 };
 
 
@@ -72,6 +73,42 @@ class source: public base_class
 
         //Placeholder for variable output depending on source type
         float return_value(float t);
+};
+
+
+
+class nonlinear_component: public base_class
+{
+    protected:
+        string model;
+        //variables for newton-rhapson method
+        int iteration;
+        float old_value;
+    
+    public:
+        //Constructor for diodes
+        nonlinear_component(char c_type, float c_value, string c_node1, string c_node2, string c_name, string c_model){
+            type = c_type;
+            value = c_value;
+            node1 = c_node1;
+            node2 = c_node2;
+            name = c_name;
+            model = c_model;
+        }
+
+        //Constructor for transistors
+        nonlinear_component(char c_type, float c_value, string c_node1, string c_node2, string c_node3, string c_name, string c_model){
+            type = c_type;
+            value = c_value;
+            node1 = c_node1;
+            node2 = c_node2;
+            node3 = c_node3;
+            name = c_name;
+            model = c_model;
+        }
+
+        //Returns approximate linear approximation via newton-rhapson method (TODO)
+        float return_value(float v);
 };
 
 

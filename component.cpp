@@ -7,6 +7,9 @@ vector<string>  base_class::return_nodes(){
     vector<string> temp;
     temp.push_back(node1);
     temp.push_back(node2);
+    if (!node3.empty()){
+        temp.push_back(node3);
+    }
     return temp;
 }
 
@@ -36,5 +39,19 @@ float source::return_value(float t){
     }
     if (output_type == "DC"){
         return value;
+    }
+}
+
+
+
+float nonlinear_component::return_value(float v){
+    if (model == "D"){
+        return 1;
+    }
+    if (model == "NPN"){
+        return 1;
+    }
+    if (model == "PNP"){
+        return 1;
     }
 }
