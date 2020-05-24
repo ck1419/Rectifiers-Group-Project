@@ -22,12 +22,6 @@ class base_class
 
         //Returns type of component
         virtual char return_type();
-
-        //Returns the value of the component that depends on time
-        virtual float return_value(float t) =0;
-        
-        //Returns value for non-linear components that requires approximation using voltage across component (v)
-        virtual float return_value(float v) =0;
 };
 
 
@@ -45,7 +39,7 @@ class basic_component: public base_class
             name = c_name;
         }
 
-        //Returns value of component
+        //Returns value of component with respects to time
         float return_value(float t);
 };
 
@@ -82,7 +76,6 @@ class nonlinear_component: public base_class
     protected:
         string model;
         //variables for newton-rhapson method
-        int iteration;
         float old_value;
     
     public:
@@ -107,8 +100,11 @@ class nonlinear_component: public base_class
             model = c_model;
         }
 
+        //Returns value of previous iteration;
+        float return_old_value();
+
         //Returns approximate linear approximation via newton-rhapson method (TODO)
-        float return_value(float v);
+        float return_value(float v, int n);
 };
 
 

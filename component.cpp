@@ -44,7 +44,7 @@ float source::return_value(float t){
 
 
 
-float nonlinear_component::return_value(float v){
+float nonlinear_component::return_value(float v, int n){
     if (model == "D"){
         return 1;
     }
@@ -54,4 +54,10 @@ float nonlinear_component::return_value(float v){
     if (model == "PNP"){
         return 1;
     }
+}
+
+
+
+float nonlinear_component::return_old_value(){
+    return old_value;
 }
