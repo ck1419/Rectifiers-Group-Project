@@ -34,7 +34,6 @@ vector<string> add_node(string node, vector<string> array){
     return array;
 }
 
-
 int main() {
 
     string input;
@@ -100,7 +99,7 @@ int main() {
     /////////ARRAY STORAGE/////////
     const int h = nodes.size();
     const int w = nodes.size();
-    float g_matrix [h][w];
+    MatrixXd g(h,w);
 
     //////////TEMPORARY VARIABLES FOR ARRAY//////////
     string node_label;
@@ -117,7 +116,7 @@ int main() {
                 conductance += 1/(components[j].return_value(0));
             }
         }
-        g_matrix [i][i] = conductance;
+        g(i,i) = conductance;
         conductance = 0;
     }
 
@@ -132,19 +131,13 @@ int main() {
                     conductance += 1/(components[k].return_value(0));
                 }
             }
-            g_matrix [j][i] = -conductance;
-            g_matrix [i][j] = -conductance;
+            g(j,i) = -conductance;
+            g(i,j) = -conductance;
             conductance = 0;
         }
     }
 
     //////////TEST PRINT ARRAY//////////
-    for (int i=0; i<w; i++) {
-        for (int j=0; j<h; j++) {
-            cerr << g_matrix [i][j] << " ";
-        }
-        cerr << endl;
-    }
-
+        cerr << g << endl;
 }
 
