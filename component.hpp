@@ -10,22 +10,23 @@ using namespace std;
 class node
 {
     protected:
-        vector<int> connected_nodesID;        //Linked via int IDs
+        vector<node*> connected_nodes;        //Linked via int IDs
         int ID;
 
     public:
         //Constructor
-        node(string c_ID, int ID1, int ID2){
-            ID = stoi( c_ID.erase('N') );
-            connected_nodesID.push_back(ID1);
-            connected_nodesID.push_back(ID2);
+        node(int c_ID){
+            ID = c_ID;
         }
 
         //Returns connected nodes
-        vector<int> return_nodes();
+        vector<node*> return_nodes();
+
+        //Returns ID of current node
+        int return_ID();
 
         //Add connected nodes if it isn't included already
-        void add_node(int ID);
+        void add_node(node* c_node);
 };
 
 //Base class just for inherited functionality so everything can use the same methods when iterating through arrays of components
@@ -40,6 +41,7 @@ class base_class
         char type;
         float value;
         bool node3_exists = false;
+        bool current_found = false;
 
     public:
         //Returns the nodes the component is connected to in a vector
@@ -47,6 +49,13 @@ class base_class
 
         //Returns type of component
         virtual char return_type();
+
+        virtual float return_value(float t) =0;
+
+        virtual void set_current(float i);
+
+        //Returns 1 if current is set, 0 if current is still not found;
+        virtual bool current_calculated();
 };
 
 

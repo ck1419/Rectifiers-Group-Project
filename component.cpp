@@ -3,22 +3,28 @@ using namespace std;
 
 
 
-vector<int> node::return_nodes(){
-    return connected_nodesID;
+vector<node*> node::return_nodes(){
+    return connected_nodes;
 }
 
 
 
-void node::add_node(int ID){
+int node::return_ID(){
+    return ID;
+}
+
+
+
+void node::add_node(node *c_node){
     bool not_found = true;
-    for(int i=0; i<connected_nodesID.size(); i++){
-        if (connected_nodesID[i]==ID)
+    for(int i=0; i<connected_nodes.size(); i++){
+        if (connected_nodes[i]->return_ID() == c_node->return_ID())
         {
             not_found = false;
         }
-        if (not_found){
-            connected_nodesID.push_back(ID);
-        }
+    }
+    if (not_found){
+        connected_nodes.push_back(c_node);
     }
 }
 
@@ -38,6 +44,19 @@ vector<node*> base_class::return_nodes(){
 
 char base_class::return_type(){
     return type;
+}
+
+
+
+void base_class::set_current(float i){
+    current = i;
+    current_found = true;
+}
+
+
+
+bool base_class::current_calculated(){
+    return current_found;
 }
 
 
