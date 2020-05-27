@@ -1,27 +1,18 @@
 #include "component.hpp"
 using namespace std;
 
-vector<float> find_current(vector<node*> all_nodes, int t){
+
+vector<float> find_current(vector<base_class*> all_components, vector<node*> all_nodes, int t){
+    //Creates current matrix filled with 0s
     vector<float> current_matrix;
     for (int i=0; i<all_nodes.size();i++){
         current_matrix.push_back(0);
     }
-
-    for (int i=0; i<all_nodes.size();i++){
-        float current = 0;
-        vector<base_class*> connected_components = all_nodes[i]->return_components();
-        for (int x=0; x<connected_components.size(); x++){
-            if (connected_components[x]->return_type() == 'I'){
-                if (connected_components[x]->return_nodes()[0]->return_ID() == all_nodes[i]->return_ID()){
-                    current += connected_components[x]->return_value(t);
-                }else{
-                    current -= connected_components[x]->return_value(t);
-                }
-                
-            }
+    //Replace 0s with current values if node is connected to a source
+    for (int i=0; i<all_components.size(); i++){
+        if (all_components[i].type == "I"){
+            current_matrix[ all_components[i]->return_nodes()[0]->return_ID() ] += all_components[i]->return_value(t);
         }
-        current_matrix[all_nodes[i]->return_ID()] = current;
     }
-
     return current_matrix;
 }
