@@ -20,7 +20,7 @@ done 1) Take in components and sources from netlist (current sources and voltage
 */
 
 //Search vector for a node, and adds it to the vector if the node isn't found
-vector<node*> add_nodes_to_vector(node* input_node1, node* input_node2, vector<node*> array){
+vector<node*> add_nodes_to_vector(node* input_node1, node* input_node2, base_class* current_component, vector<node*> array){
     bool not_found1 = true;
     bool not_found2 = true;
     for(int i=0; i<array.size(); i++){
@@ -39,6 +39,8 @@ vector<node*> add_nodes_to_vector(node* input_node1, node* input_node2, vector<n
     }
     input_node1->add_node(input_node2);
     input_node2->add_node(input_node1);
+    input_node1->add_component(current_component);
+    input_node2->add_component(current_component);
     return array;
 }
 
@@ -53,7 +55,7 @@ int main() {
     char type;
     float value; //for RC components
     string output_type; //triangle, square, sine etc.
-
+    int component_counter = 0; //component counter for figuring out current number of component
     /////////BOOLEAN DEFINITIONS//////////
 
     /////////TAKE IN INDIVIDUAL LINES and define COMPONENTS/////////
@@ -93,8 +95,9 @@ int main() {
             //exit(1);
         }
         //Add nodes to the node vector
-        node_vector = add_nodes_to_vector(truenode1, truenode2, node_vector);
-        input.clear();
+        node_vector = add_nodes_to_vector(truenode1, truenode2, components[component_counter], node_vector);
+        component_counter += 1;
+	input.clear();
     }
 
     //Now we should have a vector of components and nodes.
@@ -110,50 +113,41 @@ int main() {
         cerr << node_vector[i]->return_ID() << " ";
     }
     cerr << endl;
-/*
+
     /////////ARRAY STORAGE/////////
-    const int h = nodes.size();
-    const int w = nodes.size();
+    const int h = node_vector.size();
+    const int w = node_vector.size();
     MatrixXd g(h,w);
 
     //////////TEMPORARY VARIABLES FOR ARRAY//////////
-    string node_label;
-    float conductance = 0;
-    string node_label_one;
-    string node_label_two;
+    int node_ID_1;
+    int node_ID_2;
+    int no_of_components;
+    float diag_conductance = 0;
+    float other_conductance = 0;
 
     //////////NOW BEGIN INSERTING INTO ARRAY//////////
-    //First insert diagonal entries
-    for (int i=0; i<nodes.size(); i++) {
-        node_label = return_ID(nodes[i]);
-        for (int j=0; j<components.size(); j++) {
-            if((components[j].return_nodes()[0] == node_label) || (components[j].return_nodes()[1] == node_label)) {
-                conductance += 1/(components[j].return_value(0));
-            }
-        }
-        g(i,i) = conductance;
-        conductance = 0;
+    //Insert both diagonal and upper triangular entries
+    for (int i=0; i<node_vector.size(); i++) {
+	node_ID_1 = node_vector[i]->return_ID();
+	no_of_components = node_vector[i]->return_components().size();
+	for (int j=0; j<no_of_components; j++) {
+    	    if(node_vector[i]->return_components()[j]->return_type() == 'R') {
+	        diag_conductance += 1/(node_vector[i]->return_components()[j]->return_value(0));
+		other_conductance = 1/(node_vector[i]->return_components()[j]->return_value(0));
+                if(node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID() == node_ID_1) {
+		    node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[1]->return_ID();
+		}else {
+		    node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID();
+		}
+		g(node_ID_1, node_ID_2) += -other_conductance;
+	    }
+	}
+	g(node_ID_1, node_ID_1) = diag_conductance;
+    	diag_conductance = 0;
     }
-
-    //Now deal with upper triangular
-    for (int i=1; i<nodes.size(); i++) { //going across
-        node_label_one = nodes[i];
-        for (int j=0; j<i; j++) { //going downwards
-            node_label_two = nodes[j];
-            for(int k=0; k<components.size(); k++) {
-                bool between = ((components[k].return_nodes()[0] ==  node_label_one) && (components[k].return_nodes()[1] ==  node_label_two)) || ((components[k].return_nodes()[1] ==  node_label_one) && (components[k].return_nodes()[0] ==  node_label_two));
-                if (between) {
-                    conductance += 1/(components[k].return_value(0));
-                }
-            }
-            g(j,i) = -conductance;
-            g(i,j) = -conductance;
-            conductance = 0;
-        }
-    }
-
     //////////TEST PRINT ARRAY//////////
         cerr << g << endl;
-*/
+
 }
 
