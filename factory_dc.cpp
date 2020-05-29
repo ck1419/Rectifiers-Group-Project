@@ -137,7 +137,7 @@ int main()
 
     //////////NOW BEGIN INSERTING INTO ARRAY//////////
     //Insert both diagonal and upper triangular entries
-    for (int i = 0; i < node_vector.size(); i++)4{
+    for (int i = 0; i < node_vector.size(); i++){
         node_ID_1 = node_vector[i]->return_ID()-1;
         no_of_components = node_vector[i]->return_components().size();
         if(node_ID_1 == -1){
