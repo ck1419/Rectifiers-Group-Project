@@ -139,8 +139,8 @@ int main()
     cerr << endl;
 
     /////////ARRAY STORAGE/////////
-    const int h = node_vector.size();
-    const int w = node_vector.size();
+    const int h = node_vector.size()-1;
+    const int w = node_vector.size()-1;
     MatrixXd g(h, w);
 
     //////////TEMPORARY VARIABLES FOR ARRAY//////////
@@ -154,8 +154,11 @@ int main()
     //Insert both diagonal and upper triangular entries
     for (int i = 0; i < node_vector.size(); i++)
     {
-        node_ID_1 = node_vector[i]->return_ID();
+        node_ID_1 = node_vector[i]->return_ID()-1;
         no_of_components = node_vector[i]->return_components().size();
+	if(node_ID_1 == -1){
+	    continue;
+	}
         for (int j = 0; j < no_of_components; j++)
         {
             if (node_vector[i]->return_components()[j]->return_type() == 'R')
@@ -164,17 +167,20 @@ int main()
                 other_conductance = 1 / (node_vector[i]->return_components()[j]->return_value(0));
                 if (node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID() == node_ID_1)
                 {
-                    node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[1]->return_ID();
+                    node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[1]->return_ID()-1;
                 }
                 else
                 {
-                    node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID();
+                    node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID()-1;
                 }
-                g(node_ID_1, node_ID_2) += -other_conductance;
-            }
+		if(node_ID_2 == -1){
+		    continue;
+		}
+                    g(node_ID_1, node_ID_2) = other_conductance;
+	    }
         }
-        g(node_ID_1, node_ID_1) = diag_conductance;
-        diag_conductance = 0;
+            g(node_ID_1, node_ID_1) = diag_conductance;
+            diag_conductance = 0;
     }
     //////////TEST PRINT ARRAY//////////
     cerr << g << endl;
