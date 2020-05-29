@@ -176,7 +176,7 @@ int main()
 		if(node_ID_2 == -1){
 		    continue;
 		}
-                    g(node_ID_1, node_ID_2) = other_conductance;
+                    g(node_ID_1, node_ID_2) += -other_conductance;
 	    }
         }
             g(node_ID_1, node_ID_1) = diag_conductance;
