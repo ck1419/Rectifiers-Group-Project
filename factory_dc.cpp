@@ -1,4 +1,5 @@
 #include "component.hpp"
+#include "current_matrix.hpp"
 #include <iostream>
 #include <sstream>
 #include <Eigen/Dense>
@@ -161,6 +162,23 @@ int main()
         g(node_ID_1, node_ID_1) = diag_conductance;
         diag_conductance = 0;
     }
-    //////////TEST PRINT ARRAY//////////
-    cerr << g << endl;
+    //////////TEST PRINT CONDUCTANCE MATRIX//////////
+    cerr << endl << "Conductance Matrix" << endl << g << endl;
+
+    /////////CALCULATE CURRENT MATRIX//////////
+    MatrixXd current(h,1);
+    vector<float> temp;
+    temp = find_current(components, node_vector, 0);
+    for(int f=0; f < temp.size(); f++){
+	current(f) = temp[f];
+    }
+    //////////TEST PRINT CURRENT MATRIX//////////
+    cerr << endl << "Current Matrix" << endl << current << endl;
+
+    //////////CALCULATE VOLTAGE MATRIX//////////
+    MatrixXd v(h,1);
+    v = g.fullPivLu().solve(current);
+
+    /////////TEST PRINT VOLTAGE MATRIX/////////
+    cerr << endl << "Voltage Matrix" << endl << v << endl;
 }

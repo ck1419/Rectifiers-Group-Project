@@ -1,4 +1,6 @@
 #include "component.hpp"
+#ifndef current_matrix_hpp
+#define current_matrix_hpp
 using namespace std;
 
 
@@ -34,3 +36,4 @@ vector<float> find_current(vector<base_class*> all_components, vector<node*> all
     }
     return current_matrix;
 }
+#endif
