@@ -169,7 +169,7 @@ int main()
             if (node_vector[i]->return_components()[j]->return_type() == 'R')
             {
                 diag_conductance += 1 / (node_vector[i]->return_components()[j]->return_value(0));
-                other_conductance += 1 / (node_vector[i]->return_components()[j]->return_value(0));
+                other_conductance += - 1 / (node_vector[i]->return_components()[j]->return_value(0));
                 if (node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID() - 1 == node_ID_1)
                 {
                     node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[1]->return_ID() - 1;
@@ -182,7 +182,7 @@ int main()
                 {
                     continue;
                 }
-                g(node_ID_1, node_ID_2) = - other_conductance;
+                g(node_ID_1, node_ID_2) = other_conductance;
             }
         }
         g(node_ID_1, node_ID_1) = diag_conductance;
