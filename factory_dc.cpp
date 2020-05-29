@@ -1,10 +1,13 @@
 #include "component.hpp"
 #include "current_matrix.hpp"
+#include "scientific_converter.hpp"
+#include "add_nodes_to_vector.hpp"
 #include <iostream>
 #include <sstream>
 #include <Eigen/Dense>
-
 using Eigen::MatrixXd;
+
+
 /*
 //////////ALGORITHM for circuits with only resistors and current sources//////////
 
@@ -20,37 +23,6 @@ done 1) Take in components and sources from netlist (current sources and voltage
 
 */
 
-//Search vector for a node, and adds it to the vector if the node isn't found
-vector<node *> add_nodes_to_vector(node *input_node1, node *input_node2, base_class *current_component, vector<node *> array)
-{
-    bool not_found1 = true;
-    bool not_found2 = true;
-    node* vector_node1 = input_node1;
-    node* vector_node2 = input_node2;
-    for(int i=0; i<array.size(); i++){
-        if (array[i]->return_ID() == input_node1->return_ID()){
-            not_found1 = false;
-            vector_node1 = array[i];
-	    }
-        if (array[i]->return_ID() == input_node2->return_ID()){
-            not_found2 = false;
-            vector_node2 = array[i];
-        }
-    }
-    if (not_found1)
-    {
-        array.push_back(input_node1);
-    }
-    if (not_found2)
-    {
-        array.push_back(input_node2);
-    }
-    vector_node1->add_node(vector_node2);
-    vector_node2->add_node(vector_node1);
-    vector_node1->add_component(current_component);
-    vector_node2->add_component(current_component);
-    return array;
-}
 
 int main()
 {
@@ -60,7 +32,7 @@ int main()
     //////////TEMPORARY STORAGE/////////
     vector<node *> node_vector;      //keep track of nodes and their connected components
     vector<base_class *> components; //stores all the components in the circuit
-    string node1, node2, name;
+    string node1, node2, name, temp_value;
     char type;
     float value;               //for RC components
     string output_type;        //triangle, square, sine etc.
@@ -75,7 +47,8 @@ int main()
         ss >> name;
         ss >> node1;
         ss >> node2;
-        ss >> value;
+        ss >> temp_value;
+        value = scientific_converter(temp_value);
 
         //creating conditionals for parsing in the various components from the netlist
         bool is_component = (name[0] == 'R');                //support for C and L comes later
