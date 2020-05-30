@@ -24,26 +24,23 @@ vector<node *> add_nodes_to_vector(node *input_node1, node *input_node2, base_cl
 {
     bool not_found1 = true;
     bool not_found2 = true;
-    node *vector_node1 = input_node1;
-    node *vector_node2 = input_node2;
-    for (int i = 0; i < array.size(); i++)
-    {
-        if (array[i]->return_ID() == input_node1->return_ID())
-        { //node 1 is found
+    node* vector_node1 = input_node1;
+    node* vector_node2 = input_node2;
+    for(int i=0; i<array.size(); i++){
+        if (array[i]->return_ID() == input_node1->return_ID()){
             not_found1 = false;
             vector_node1 = array[i];
-        }
-        if (array[i]->return_ID() == input_node2->return_ID())
-        { //node 2 is found
+	    }
+        if (array[i]->return_ID() == input_node2->return_ID()){
             not_found2 = false;
             vector_node2 = array[i];
         }
     }
-    if (not_found1) //add node 1 to vector if not found
+    if (not_found1)
     {
         array.push_back(input_node1);
     }
-    if (not_found2) //add node 2 to vector if not found
+    if (not_found2)
     {
         array.push_back(input_node2);
     }
@@ -62,8 +59,7 @@ int main()
     //////////TEMPORARY STORAGE/////////
     vector<node *> node_vector;      //keep track of nodes and their connected components
     vector<base_class *> components; //stores all the components in the circuit
-    string node1, node2;
-    string name;
+    string node1, node2, name;
     char type;
     float value;               //for RC components
     string output_type;        //triangle, square, sine etc.
@@ -87,35 +83,24 @@ int main()
         //creating dynamic storage for the nodes that have been inputted
         node *truenode1;
         node *truenode2;
-        if (node1[0] == 'N')
-        {
+        if (node1[0] == 'N'){
             truenode1 = new node(stoi(node1.substr(1)));
-        }
-        else
-        {
-            truenode1 = new node(stoi(node1)); //if one end is ground
+        }else{
+            truenode1 = new node(stoi(node1));
         }
 
-        if (node2[0] == 'N')
-        {
+        if (node2[0] == 'N'){
             truenode2 = new node(stoi(node2.substr(1)));
-        }
-        else
-        {
-            truenode2 = new node(stoi(node2)); //if one end is ground, just save 0
+        }else{
+            truenode2 = new node(stoi(node2));
         }
 
         //Add components/ sources to component vector
-        if (is_component)
-        {
+        if (is_component){
             components.push_back(new basic_component(input[0], value, truenode1, truenode2, name));
-        }
-        else if (is_source)
-        {
+        }else if (is_source){
             components.push_back(new source(input[0], "DC", truenode1, truenode2, name, 0, value, 0)); //only DC for now
-        }
-        else
-        {
+        }else{
             //exit(1);
         }
         //Add nodes to the node vector
@@ -127,24 +112,20 @@ int main()
     //Now we should have a vector of components and nodes.
 
     //////////TEST PRINT//////////
-    cerr << endl
-         << "Print components" << endl;
-    for (int i = 0; i < components.size(); i++)
-    { //print components
+    cerr << endl << "Print components" << endl;
+    for (int i = 0; i < components.size(); i++){ //print components
         cerr << components[i]->return_type() << " " << components[i]->return_nodes()[0]->return_ID() << " " << components[i]->return_nodes()[1]->return_ID();
         cerr << " " << components[i]->return_value(0) << endl;
     }
-    cerr << endl
-         << "Print nodes" << endl;
-    for (int i = 0; i < node_vector.size(); i++)
-    { //print nodes
+    cerr << endl << "Print nodes" << endl;
+    for (int i = 0; i < node_vector.size(); i++){ //print nodes
         cerr << node_vector[i]->return_ID() << " ";
     }
     cerr << endl;
 
     /////////ARRAY STORAGE/////////
-    const int h = node_vector.size() - 1;
-    const int w = node_vector.size() - 1;
+    const int h = node_vector.size()-1;
+    const int w = node_vector.size()-1;
     MatrixXd g(h, w);
 
     //////////TEMPORARY VARIABLES FOR ARRAY//////////
@@ -156,40 +137,30 @@ int main()
 
     //////////NOW BEGIN INSERTING INTO ARRAY//////////
     //Insert both diagonal and upper triangular entries
-    for (int i = 0; i < node_vector.size(); i++)
-    {
-        node_ID_1 = node_vector[i]->return_ID() - 1;
+    for (int i = 0; i < node_vector.size(); i++){ // iterating through nodes (except reference node)
+        node_ID_1 = node_vector[i]->return_ID()-1;
         no_of_components = node_vector[i]->return_components().size();
-        if (node_ID_1 == -1)
-        {
+        if(node_ID_1 == -1){ //not doing anything with ground
             continue;
         }
-        for (int j = 0; j < no_of_components; j++)
-        {
-            if (node_vector[i]->return_components()[j]->return_type() == 'R')
-            {
+        for (int j = 0; j < no_of_components; j++){ //iterating through number of components connected to one node
+            if (node_vector[i]->return_components()[j]->return_type() == 'R'){ //if connected component is a resistor
                 diag_conductance += 1 / (node_vector[i]->return_components()[j]->return_value(0));
-                other_conductance += - 1 / (node_vector[i]->return_components()[j]->return_value(0));
-                if (node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID() - 1 == node_ID_1)
-                {
-                    node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[1]->return_ID() - 1;
+                other_conductance = 1 / (node_vector[i]->return_components()[j]->return_value(0));
+                if (node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID()-1 == node_ID_1){ 
+                    node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[1]->return_ID()-1;
+                }else{
+                    node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID()-1;
                 }
-                else
-                {
-                    node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID() - 1;
-                }
-                if (node_ID_2 == -1)
-                {
+                if(node_ID_2 == -1){
                     continue;
                 }
-                g(node_ID_1, node_ID_2) = other_conductance;
+                g(node_ID_1, node_ID_2) += -other_conductance;
             }
         }
         g(node_ID_1, node_ID_1) = diag_conductance;
         diag_conductance = 0;
     }
     //////////TEST PRINT ARRAY//////////
-    cerr << endl
-         << "G Matrix" << endl
-         << g << endl;
+    cerr << g << endl;
 }
