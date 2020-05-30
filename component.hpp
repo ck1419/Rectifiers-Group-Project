@@ -18,6 +18,9 @@ class node
         vector<node*> connected_nodes;  //Pointer to connected nodes
         vector<base_class*> connected_components;   //Pointer to connected components
         int ID;
+        bool v_source_neg = false;
+        bool v_source_pos = false;
+        bool v_source_grounded = false;
 
     public:
         //Constructor
@@ -39,6 +42,20 @@ class node
 
         //Add base class connected to this component (For more efficient current calculations)
         void add_component(base_class *c_component);
+
+        void set_v_source_true(string pos, bool ground_status);
+
+        bool return_v_source_neg() {
+            return this->v_source_neg;
+        }
+
+        bool return_v_source_pos() {
+            return this->v_source_pos;
+        } 
+
+        bool return_v_source_grounded() {
+            return this->v_source_grounded;
+        }
 };
 
 

@@ -19,6 +19,18 @@ int node::return_ID(){
     return ID;
 }
 
+void node::set_v_source_true(string pos, bool ground_status) {
+    if (pos == "neg") {
+        v_source_neg = true;
+        v_source_grounded = ground_status;
+    } else if (pos == "pos") {
+        v_source_pos = true;
+        v_source_grounded = ground_status;
+    } else {
+        //
+    }
+}
+
 
 
 void node::add_node(node *c_node){
