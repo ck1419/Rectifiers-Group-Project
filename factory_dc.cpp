@@ -34,7 +34,7 @@ int main()
     char type;
     float value;
     float stop_time = 0;
-    float time_step = 0;
+    float time_step = 1;
     int component_counter = 0; //component counter for figuring out current number of component
     /////////BOOLEAN DEFINITIONS//////////
 
