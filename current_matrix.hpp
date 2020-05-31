@@ -4,7 +4,7 @@
 using namespace std;
 
 
-vector<float> find_current(vector<base_class*> all_components, vector<node*> all_nodes, int t){
+vector<float> find_current(vector<base_class*> all_components, vector<node*> all_nodes, float t){
     //Creates current matrix filled with 0s
     vector<float> current_matrix, temp_voltage_holder;
     for (int i=0; i<all_nodes.size()-1;i++){

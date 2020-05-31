@@ -116,13 +116,7 @@ float source::return_value(float t){
     if (output_type == "sine"){
         return ( amplitude*sin(2*M_PI*frequency*t) ) + value;
     }
-    if (output_type == "triangle"){
-        return 1;
-    }
-    if (output_type == "square"){
-        return 1;
-    }
-    if (output_type == "DC"){
+    if (output_type == "dc"){
         return value;
     }
 }
