@@ -117,7 +117,7 @@ int main()
         //identify positive and negative terminals of the voltage source
         if (name[0] == 'V')
         {
-            if (stoi(node1.substr(1)) == '0' || stoi(node2.substr(1)) == '0')
+            if (stoi(node1.substr(1)) == 0 || stoi(node2.substr(1)) == 0)
             {
                 v_source_grounded = true;
                 cerr << "v_source_ground identified" << endl;
