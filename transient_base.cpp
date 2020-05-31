@@ -47,6 +47,7 @@ int main(){
                 ss >> temp_value;
                 amplitude = scientific_converter(temp_value);
                 ss >> temp_value;
+                temp_value.pop_back()
                 frequency = scientific_converter(temp_value);
             }else{                                  //Not a sine source
                 source_type = "DC";

@@ -82,7 +82,7 @@ int main()
     /////////TAKE IN INDIVIDUAL LINES and define COMPONENTS/////////
     while (getline(cin, input))
     {
-
+        int node1_ID, node2_ID;
         istringstream ss(input);
         ss >> name;
         ss >> node1;
@@ -98,26 +98,30 @@ int main()
         node *truenode2;
         if (node1[0] == 'N')
         {
-            truenode1 = new node(stoi(node1.substr(1)));
+            node1_ID = stoi(node1.substr(1));
+            truenode1 = new node(node1_ID);
         }
         else
         {
-            truenode1 = new node(stoi(node1));
+            node1_ID = stoi(node1);
+            truenode1 = new node(node1_ID);
         }
 
         if (node2[0] == 'N')
         {
-            truenode2 = new node(stoi(node2.substr(1)));
+            node2_ID = stoi(node2.substr(1));
+            truenode2 = new node(node2_ID);
         }
         else
         {
-            truenode2 = new node(stoi(node2));
+            node2_ID = stoi(node2);
+            truenode2 = new node(node2_ID);
         }
 
         //identify positive and negative terminals of the voltage source
         if (name[0] == 'V')
         {
-            if (stoi(node1.substr(1)) == 0 || stoi(node2.substr(1)) == 0)
+            if (node1_ID == 0 || node2_ID == 0)
             {
                 v_source_grounded = true;
                 cerr << "v_source_ground identified" << endl;
@@ -130,7 +134,7 @@ int main()
         //Add components/ sources to component vector
         if (is_component)
         {
-            if (stoi(node2.substr(1)) != stoi(node1.substr(1)))
+            if (node2_ID != node1_ID)
             { // do not push back components if they have been short circuited
                 components.push_back(new basic_component(input[0], value, truenode1, truenode2, name));
             }
