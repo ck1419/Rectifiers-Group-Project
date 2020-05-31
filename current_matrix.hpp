@@ -3,6 +3,11 @@
 #define current_matrix_hpp
 using namespace std;
 
+//RECURSIVE FUNCTION FOR SUPERNODES, TBD
+//RETURNS TOTAL OF VOLTAGES+CURRENT TO BE IN MAIN SUPERNODE NODE
+float supernode_voltage(base_class* current_component){
+    return 1;
+}
 
 vector<float> find_current(vector<base_class*> all_components, vector<node*> all_nodes, float t){
     //Creates current matrix filled with 0s
@@ -20,11 +25,21 @@ vector<float> find_current(vector<base_class*> all_components, vector<node*> all
                 current_matrix[ all_components[i]->return_nodes()[1]->return_ID()-1 ] += all_components[i]->return_value(t);
             }
         }
+
         //Keeps track of which nodes has voltage sources connected to it
         if (all_components[i]->return_type() == 'V'){
-            if (all_components[i]->return_nodes()[0]->return_ID() != 0){
-                temp_voltage_holder[ all_components[i]->return_nodes()[0]->return_ID()-1 ] += all_components[i]->return_value(t);
+            //Checks for voltage sources that are connected to ground via negative side
+            if (all_components[i]->return_nodes()[0]->return_ID() != 0 && all_components[i]->return_nodes()[1]->return_ID() == 0){
+                temp_voltage_holder[ all_components[i]->return_nodes()[0]->return_ID()-1 ] = all_components[i]->return_value(t);
+            //via positive side
+            }else if (all_components[i]->return_nodes()[1]->return_ID() != 0 && all_components[i]->return_nodes()[0]->return_ID() == 0){
+                temp_voltage_holder[ all_components[i]->return_nodes()[1]->return_ID()-1 ] = all_components[i]->return_value(t);
+            //Otherwise it is a supernode
+            }else{
+                //TBD USING SUPERNODE RECURSION
             }
+
+
         }
     }
     
