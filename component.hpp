@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include <iostream>
 using namespace std;
 
 
@@ -19,7 +20,7 @@ class node
         vector<base_class*> connected_components;   //Pointer to connected components
         int ID;
         bool v_source_neg = false;
-        bool v_source_pos = false;
+        bool v_source_pos  = false;
         bool v_source_grounded = false;
 
     public:
@@ -46,15 +47,15 @@ class node
         void set_v_source_true(string pos, bool ground_status);
 
         bool return_v_source_neg() {
-            return this->v_source_neg;
+            return v_source_neg;
         }
 
         bool return_v_source_pos() {
-            return this->v_source_pos;
+            return v_source_pos;
         } 
 
         bool return_v_source_grounded() {
-            return this->v_source_grounded;
+            return v_source_grounded;
         }
 };
 

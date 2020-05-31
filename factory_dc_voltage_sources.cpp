@@ -131,6 +131,8 @@ int main()
             truenode2->set_v_source_true("neg", v_source_grounded);
         }
 
+        cerr << value;
+
         //Add components/ sources to component vector
         if (is_component)
         {

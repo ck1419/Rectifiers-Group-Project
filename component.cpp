@@ -23,9 +23,13 @@ void node::set_v_source_true(string pos, bool ground_status) {
     if (pos == "neg") {
         v_source_neg = true;
         v_source_grounded = ground_status;
+        cerr << "v_source_neg = " << v_source_neg << endl;
+        cerr << "v_source_grounded = " << v_source_grounded << endl;
     } else if (pos == "pos") {
         v_source_pos = true;
         v_source_grounded = ground_status;
+        cerr << "v_source_pos = " << v_source_pos << endl;
+        cerr << "v_source_grounded = " << v_source_grounded << endl;
     } else {
         //
     }

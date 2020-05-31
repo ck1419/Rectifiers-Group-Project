@@ -36,6 +36,9 @@ int main()
     float stop_time = 0;
     float time_step = 1;
     int component_counter = 0; //component counter for figuring out current number of component
+    bool node_contains_v_source = false;
+    bool v_source_grounded = false;
+    int node1_ID, node2_ID;
     /////////BOOLEAN DEFINITIONS//////////
 
     /////////TAKE IN INDIVIDUAL LINES and define COMPONENTS/////////
@@ -82,25 +85,47 @@ int main()
         node *truenode1;
         node *truenode2;
         if (node1[0] == 'N'){
+            node1_ID = stoi(node1.substr(1));
             truenode1 = new node(stoi(node1.substr(1)));
         }else{
+            node1_ID = stoi(node1);
             truenode1 = new node(stoi(node1));
         }
 
         if (node2[0] == 'N'){
+            node2_ID = stoi(node2.substr(1));
             truenode2 = new node(stoi(node2.substr(1)));
         }else{
+            node2_ID = stoi(node2);
             truenode2 = new node(stoi(node2));
         }
 
+        cerr << endl << name << " Value " << value << endl;
+
         //Add components/sources to component vector (WITH SINE SOURCE SUPPORT)
         if (is_component){
-            components.push_back(new basic_component(input[0], value, truenode1, truenode2, name));
+            if (node2_ID != node1_ID) {
+                components.push_back(new basic_component(input[0], value, truenode1, truenode2, name));
+            }     
         }else if (is_source){
             components.push_back(new source(input[0], source_type, truenode1, truenode2, name, frequency, value, amplitude));
         }else{
             //exit(1);
         }
+
+        //identify positive and negative terminals of the voltage source
+        if (name[0] == 'V')
+        {
+            if (node1_ID == 0 || node2_ID == 0)
+            {
+                v_source_grounded = true;
+                cerr << "v_source_ground identified" << endl;
+            }
+            node_contains_v_source = true;
+            truenode1->set_v_source_true("pos", v_source_grounded);
+            truenode2->set_v_source_true("neg", v_source_grounded);
+        }
+
 
         //Add nodes to the node vector
         node_vector = add_nodes_to_vector(truenode1, truenode2, components[component_counter], node_vector);
@@ -145,18 +170,57 @@ int main()
             continue;
         }
         for (int j = 0; j < no_of_components; j++){
-            if (node_vector[i]->return_components()[j]->return_type() == 'R'){
-                diag_conductance += 1 / (node_vector[i]->return_components()[j]->return_value(0));
-                other_conductance = 1 / (node_vector[i]->return_components()[j]->return_value(0));
-                if (node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID()-1 == node_ID_1){
-                    node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[1]->return_ID()-1;
-                }else{
-                    node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID()-1;
+            cerr << endl << "v_source_pos = " << node_vector[i]->return_v_source_pos() << " and v_source neg = " << node_vector[i]->return_v_source_neg() << endl;
+            cerr << "v source existing?" << (node_vector[i]->return_v_source_neg() || node_vector[i]->return_v_source_pos()) << endl;
+            if (node_vector[i]->return_v_source_neg() || node_vector[i]->return_v_source_pos()) {
+                if (node_vector[i]->return_v_source_neg() && node_vector[i]->return_v_source_grounded()) { //CASE 1:or source with positive terminal towards ground
+                    diag_conductance = 1;
+                } else if (node_vector[i]->return_v_source_pos() && node_vector[i]->return_v_source_grounded()) { //CASE 2: for source with negative terminal towards ground
+                    diag_conductance = 1;
+                } else if (node_vector[i]->return_v_source_pos() && !node_vector[i]->return_v_source_grounded()) { //CASE 3: at positive terminal for non-grounded source, do v=v3-v2
+                    diag_conductance = 1;
+                    if (node_vector[i]->return_components()[j]->return_type() == 'V') { //if same voltage source
+                        other_conductance = -1;
+                        node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[1]->return_ID() - 1; //want node of other end, i.e. the negative terminal (so second entry or [1])
+                        g(node_ID_1, node_ID_2) = other_conductance;
+                    }
+                } else if (node_vector[i]->return_v_source_neg() && !node_vector[i]->return_v_source_grounded()) { //CASE 4: at negative terminal or non-grounded source, do KCL equations for supernode.
+                    //non-grounded voltage source, at the negative terminal, perform relatively normal stuff, 
+                    //except other conductance positive for supernodes (nodes connected voltage source)
+                    if (node_vector[i]->return_components()[j]->return_type() == 'R')
+                    { //if connected component is a resistor
+                        diag_conductance += 1 / (node_vector[i]->return_components()[j]->return_value(0));
+                        other_conductance = 1 / (node_vector[i]->return_components()[j]->return_value(0));
+                        if (node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID() - 1 == node_ID_1) {
+                            node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[1]->return_ID() - 1;
+                        } else {
+                            node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID() - 1;
+                        }
+                        if (node_ID_2 == -1) {
+                            continue;
+                        }
+                        if (node_vector[i]->return_components()[j]->return_nodes()[1]->return_v_source_pos() == true)
+                        { //if the other node is the node connected to the positive terminal of the voltage source, then conductance is positive not negative
+                            g(node_ID_1, node_ID_2) += other_conductance;
+                        } else {
+                            g(node_ID_1, node_ID_2) += -other_conductance;
+                        }
+                    }
                 }
-                if(node_ID_2 == -1){
-                    continue;
-                }
-                g(node_ID_1, node_ID_2) += -other_conductance;
+            } else {
+                if (node_vector[i]->return_components()[j]->return_type() == 'R'){
+                    diag_conductance += 1 / (node_vector[i]->return_components()[j]->return_value(0));
+                    other_conductance = 1 / (node_vector[i]->return_components()[j]->return_value(0));
+                    if (node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID()-1 == node_ID_1){
+                        node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[1]->return_ID()-1;
+                    }else{
+                        node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID()-1;
+                    }
+                    if(node_ID_2 == -1){
+                        continue;
+                    }
+                    g(node_ID_1, node_ID_2) += -other_conductance;
+                }              
             }
         }
         g(node_ID_1, node_ID_1) = diag_conductance;
