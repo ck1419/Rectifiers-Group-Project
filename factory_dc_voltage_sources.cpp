@@ -25,6 +25,7 @@ using Eigen::MatrixXd;
 
 */
 
+/*
 //Search vector for a node, and adds it to the vector if the node isn't found
 vector<node *> add_nodes_to_vector(node *input_node1, node *input_node2, base_class *current_component, vector<node *> array)
 {
@@ -59,6 +60,7 @@ vector<node *> add_nodes_to_vector(node *input_node1, node *input_node2, base_cl
     vector_node2->add_component(current_component);
     return array;
 }
+*/
 
 int main()
 {
@@ -114,9 +116,11 @@ int main()
 
         //identify positive and negative terminals of the voltage source
         if (name[0] == 'V')
-        {   
-            if (stoi(node1) == 0 || stoi(node2) == 0) {
+        {
+            if (stoi(node1.substr(1)) == '0' || stoi(node2.substr(1)) == '0')
+            {
                 v_source_grounded = true;
+                cerr << "v_source_ground identified" << endl;
             }
             node_contains_v_source = true;
             truenode1->set_v_source_true("pos", v_source_grounded);
@@ -126,7 +130,7 @@ int main()
         //Add components/ sources to component vector
         if (is_component)
         {
-            if (stoi(node2) != stoi(node1))
+            if (stoi(node2.substr(1)) != stoi(node1.substr(1)))
             { // do not push back components if they have been short circuited
                 components.push_back(new basic_component(input[0], value, truenode1, truenode2, name));
             }
@@ -196,14 +200,70 @@ int main()
         { //iterating through number of components connected to one node
             if (node_vector[i]->return_v_source_neg() || node_vector[i]->return_v_source_pos())
             {
-                if (node_vector[i]->return_v_source_neg() && node_vector[i]->return_v_source_grounded()) { //grounded voltage source, positive terminal pointing to ground
-
-                } else if (node_vector[i]->return_v_source_pos() && node_vector[i]->return_v_source_grounded()) { //grounded voltage source, negative terminal pointing to ground
-
-                } else if (node_vector[i]->return_v_source_neg() && !node_vector[i]->return_v_source_grounded()) { //non-grounded voltage source, positive terminal
-
-                } else if (node_vector[i]->return_v_source_pos() && !node_vector[i]->return_v_source_grounded()) { //non-grounded voltage source, negative terminal
-
+                //THINGS TO WORK ON IN CURRENT MATRIX
+                //ASSUMING VOLTAGE SOURCE VALUES ARE ALWAYS GIVEN WITH RESPECT TO GROUND (e.g. negative if positive terminal towards ground)
+                //ASSUME: if multiple parallel voltage sources from ground, both same direction, voltage in current matrix at this node is maximum of voltages;
+                //ASSUME: if parallel voltage sources opposite directions, voltage in current matrix is net sum.
+                if (node_vector[i]->return_v_source_neg() && node_vector[i]->return_v_source_grounded())
+                { //grounded voltage source, positive terminal pointing to ground
+                    diag_conductance = 1;
+                    //only looking for the same grounded voltage source
+                    node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID() - 1;
+                    if (node_ID_2 == -1) //if ground, we have already considered it properly
+                    {
+                        continue;
+                    }
+                    //other conductances have to be zero, even if there are other voltage sources (grounded or non-grounded) connected to this node
+                }
+                else if (node_vector[i]->return_v_source_pos() && node_vector[i]->return_v_source_grounded())
+                { //grounded voltage source, negative terminal pointing to ground
+                    diag_conductance = 1;
+                    //only looking for the same grounded voltage source
+                    node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID() - 1;
+                    if (node_ID_2 == -1) //if ground, we have already considered it properly
+                    {
+                        continue;
+                    }
+                    //other conductances have to be zero, even if there are other voltage sources (grounded or non-grounded) connected to this node
+                }
+                else if (node_vector[i]->return_v_source_pos() && !node_vector[i]->return_v_source_grounded())
+                { //non-grounded voltage source, at the positive terminal e.g. v= vc-vb
+                    diag_conductance = 1;
+                    if (node_vector[i]->return_components()[j]->return_type() == 'V')
+                    {
+                        //if same voltage source
+                        other_conductance = -1;
+                        node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[1]->return_ID() - 1;
+                        g(node_ID_1, node_ID_2) = other_conductance;
+                    }
+                }
+                else if (node_vector[i]->return_v_source_neg() && !node_vector[i]->return_v_source_grounded())
+                { //non-grounded voltage source, at the negative terminal, perform relatively normal stuff, except other conductance positive for supernodes (nodes connected voltage source)
+                    if (node_vector[i]->return_components()[j]->return_type() == 'R')
+                    { //if connected component is a resistor
+                        diag_conductance += 1 / (node_vector[i]->return_components()[j]->return_value(0));
+                        other_conductance = 1 / (node_vector[i]->return_components()[j]->return_value(0));
+                        if (node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID() - 1 == node_ID_1)
+                        {
+                            node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[1]->return_ID() - 1;
+                        }
+                        else
+                        {
+                            node_ID_2 = node_vector[i]->return_components()[j]->return_nodes()[0]->return_ID() - 1;
+                        }
+                        if (node_ID_2 == -1)
+                        {
+                            continue;
+                        }
+                        if (node_vector[i]->return_components()[j]->return_nodes()[1]->return_v_source_pos() == true)
+                        { //if the oer node is the node connected to the positive terminal of the voltage source
+                            g(node_ID_1, node_ID_2) += other_conductance;
+                        }
+                        else
+                        {
+                            g(node_ID_1, node_ID_2) += -other_conductance;
+                        }
+                    }
                 }
             }
             else
