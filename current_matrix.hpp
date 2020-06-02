@@ -44,8 +44,19 @@ vector<float> find_current(vector<base_class*> all_components, vector<node*> all
             } else if (all_components[i]->return_nodes()[1]->return_ID() != 0 && all_components[i]->return_nodes()[0]->return_ID() == 0){
                 temp_voltage_holder[ all_components[i]->return_nodes()[1]->return_ID()-1 ] = all_components[i]->return_value(t);
             //checks for top of supernode
-            } else if (!all_components[i]->return_nodes()[0]->return_v_source_neg()){
-                temp_voltage_holder[ all_components[i]->return_nodes()[0]->return_ID()-1 ] = supernode(all_components[i], 0);
+            } else {
+                bool supernode_top = true;
+                for (int i=0; i<all_components[i]->return_nodes()[0]->return_components().size(); i++){
+                    base_class* next_component = all_components[i]->return_nodes()[0]->return_components()[i];
+                    //Checks whether the connected component is a voltage source, and whether the negative end of it is connected to the current voltage source's positive end
+                    if (next_component->return_type()=='V' && next_component->return_nodes()[1] == all_components[i]->return_nodes()[0]){
+                        supernode_top = false;
+                    }
+                }
+                //If the current voltage source is the top of the supernode chain, run the supernode recursive code
+                if (supernode_top){
+                    temp_voltage_holder[ all_components[i]->return_nodes()[0]->return_ID()-1 ] = supernode(all_components[i], 0);
+                }
             }
             //all other voltage sources are ignored
         }
