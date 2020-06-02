@@ -6,14 +6,19 @@ using namespace std;
 //RECURSIVE FUNCTION FOR SUPERNODES, TBD
 //RETURNS TOTAL OF VOLTAGES+CURRENT TO BE IN MAIN SUPERNODE NODE
 float supernode(base_class* current_component, float cumulative_value){
-    vector <base_class*> connected_components = current_component->return_nodes()[1]->return_components();
+    vector<base_class*> connected_components = current_component->return_nodes()[1]->return_components();
+    vector<float> parallel_voltages;
     //Scans through  all the components connected at the negative side of the source
     for (int i=0; i<connected_components.size(); i++){
         //Checks for voltage sources, and makes sure that it won't loop back to old components
         if (connected_components[i]->return_type() == 'V' && connected_components[i]->return_nodes()[0]->return_ID() == current_component->return_nodes()[1]->return_ID()){
             //Recursively sends the total of the voltages up
-            cumulative_value = supernode(connected_components[i], cumulative_value);
+            parallel_voltages.push_back( supernode(connected_components[i], cumulative_value) );
         }
+    }
+    //This prevents parallel voltages from adding up into the same node, and only uses the value of the highest voltage source
+    for (int i=0; i<parallel_voltages.size(); i++){
+        cumulative_value = max(parallel_voltages[i], cumulative_value);
     }
     return cumulative_value;
 }
@@ -39,10 +44,10 @@ vector<float> find_current(vector<base_class*> all_components, vector<node*> all
         if (all_components[i]->return_type() == 'V'){
             //Checks for voltage sources that are connected to ground via negative side
             if (all_components[i]->return_nodes()[0]->return_ID() != 0 && all_components[i]->return_nodes()[1]->return_ID() == 0){
-                temp_voltage_holder[ all_components[i]->return_nodes()[0]->return_ID()-1 ] = all_components[i]->return_value(t);
+                temp_voltage_holder[ all_components[i]->return_nodes()[0]->return_ID()-1 ] = max(all_components[i]->return_value(t), temp_voltage_holder[ all_components[i]->return_nodes()[0]->return_ID()-1 ]);
             //via positive side
             } else if (all_components[i]->return_nodes()[1]->return_ID() != 0 && all_components[i]->return_nodes()[0]->return_ID() == 0){
-                temp_voltage_holder[ all_components[i]->return_nodes()[1]->return_ID()-1 ] = all_components[i]->return_value(t);
+                temp_voltage_holder[ all_components[i]->return_nodes()[1]->return_ID()-1 ] = max(all_components[i]->return_value(t), temp_voltage_holder[ all_components[i]->return_nodes()[1]->return_ID()-1 ]);
             //checks for top of supernode
             } else if (!all_components[i]->return_nodes()[0]->return_v_source_neg()){
                 temp_voltage_holder[ all_components[i]->return_nodes()[0]->return_ID()-1 ] = supernode(all_components[i], 0);
