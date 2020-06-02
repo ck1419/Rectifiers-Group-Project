@@ -131,15 +131,26 @@ int main()
                 << " P" << truenode2->return_v_source_pos()
                 << " N" << truenode2->return_v_source_neg() << endl;
         }
-
-
+        cout << endl << endl << "HERE" << endl;
+        cout << "NODE " << truenode1->return_ID() << ": G" << truenode1->return_v_source_grounded()
+                        << " P" << truenode1->return_v_source_pos()
+                        << " N" << truenode1->return_v_source_neg() << endl;
+        cout << "NODE " << truenode2->return_ID() << ": G" << truenode2->return_v_source_grounded()
+                        << " P" << truenode2->return_v_source_pos()
+                        << " N" << truenode2->return_v_source_neg() << endl;
         //Add nodes to the node vector
         node_vector = add_nodes_to_vector(truenode1, truenode2, components[component_counter], node_vector);
+
+        cout << endl << endl << "HERE 2" << endl;
+        for(int i=0; i<node_vector.size(); i++){
+            cout << "NODE " << node_vector[i]->return_ID() << ": G" << node_vector[i]->return_v_source_grounded()
+                << " P" << node_vector[i]->return_v_source_pos()
+                << " N" << node_vector[i]->return_v_source_neg() << endl;
+        }
+
         component_counter += 1;
         input.clear();
     }
-
-
 
     //////////TEST PRINT//////////
     cerr << endl << "Print components" << endl;
@@ -150,6 +161,9 @@ int main()
     cerr << endl << "Print nodes" << endl;
     for (int i = 0; i < node_vector.size(); i++){ //print nodes
         cerr << node_vector[i]->return_ID() << " ";
+        cout << "NODE " << node_vector[i]->return_ID() << ": G" << node_vector[i]->return_v_source_grounded()
+                << " P" << node_vector[i]->return_v_source_pos()
+                << " N" << node_vector[i]->return_v_source_neg() << endl;
     }
     cerr << endl;
 
@@ -169,6 +183,7 @@ int main()
     float diag_conductance = 0;
     float other_conductance = 0;
 
+    cout << "HERE 3" << endl;
     //CREATES G MTRIX
     for (int i = 0; i < node_vector.size(); i++){
         node_ID_1 = node_vector[i]->return_ID()-1;
@@ -177,9 +192,10 @@ int main()
             continue;
         }
 
-        //CERR BOOLEANS BEFORE STARTING
-        cerr << endl << "v_source_pos = " << node_vector[i]->return_v_source_pos() << " and v_source neg = " << node_vector[i]->return_v_source_neg() << endl;
-        cerr << "v source existing?" << (node_vector[i]->return_v_source_neg() || node_vector[i]->return_v_source_pos()) << endl;
+       cout << "NODE " << node_vector[i]->return_ID() << ": G" << node_vector[i]->return_v_source_grounded()
+                << " P" << node_vector[i]->return_v_source_pos()
+                << " N" << node_vector[i]->return_v_source_neg() << endl;
+
 
         if (node_vector[i]->return_v_source_neg() && node_vector[i]->return_v_source_grounded()) { //CASE 1:or source with positive terminal towards ground
             diag_conductance = 1;
