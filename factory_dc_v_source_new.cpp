@@ -123,7 +123,13 @@ int main()
             }
             node_contains_v_source = true;
             truenode1->set_v_source_true("pos", v_source_grounded);
+            cout << "NODE " << truenode1->return_ID() << ": G" << truenode1->return_v_source_grounded()
+                << " P" << truenode1->return_v_source_pos()
+                << " N" << truenode1->return_v_source_neg() << endl;
             truenode2->set_v_source_true("neg", v_source_grounded);
+            cout << "NODE " << truenode2->return_ID() << ": G" << truenode2->return_v_source_grounded()
+                << " P" << truenode2->return_v_source_pos()
+                << " N" << truenode2->return_v_source_neg() << endl;
         }
 
 
