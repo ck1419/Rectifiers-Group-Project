@@ -37,7 +37,7 @@ int main()
     float time_step = 1;
     int component_counter = 0; //component counter for figuring out current number of component
     int voltage_source_counter = 0;
-    int inductor_counter = 0;
+    int capacitor_counter = 0;
     /////////BOOLEAN DEFINITIONS//////////
 
     /////////TAKE IN INDIVIDUAL LINES and define COMPONENTS/////////
@@ -105,8 +105,8 @@ int main()
 
         if (input[0]=='V'){
             voltage_source_counter++;
-        } else if (input[0]=='L'){
-            inductor_counter++;
+        } else if (input[0]=='C'){
+            capacitor_counter++;
         }
 
         //Add nodes to the node vector
@@ -132,8 +132,8 @@ int main()
 
     cout << "VOLTAGE COUNT: " << voltage_source_counter << endl;
     /////////ARRAY STORAGE/////////
-    const int h = node_vector.size()+voltage_source_counter+inductor_counter-1;
-    const int w = node_vector.size()+voltage_source_counter+inductor_counter-1;
+    const int h = node_vector.size()+voltage_source_counter+capacitor_counter-1;
+    const int w = node_vector.size()+voltage_source_counter+capacitor_counter-1;
     MatrixXd g(h, w);
     cout << "H: " << h << " W: " << w << endl;
 
@@ -182,7 +182,7 @@ int main()
         /////////CALCULATE CURRENT MATRIX//////////
         MatrixXd current(h,1);
         vector<float> temp;
-        temp = find_current(components, node_vector.size()-1, voltage_source_counter, inductor_counter, t);
+        temp = find_current(components, node_vector.size()-1, voltage_source_counter, capacitor_counter, t);
         for(int f=0; f < temp.size(); f++){
         current(f) = temp[f];
         }
