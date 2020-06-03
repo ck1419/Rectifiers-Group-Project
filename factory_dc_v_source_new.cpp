@@ -230,8 +230,7 @@ int main()
                     }
                 }
             }
-        }
-        else { //CASE 5: Normal Conductance matrix entries
+        } else { //CASE 5: Normal Conductance matrix entries
             for (int j = 0; j < no_of_components; j++){
                 if (node_vector[i]->return_components()[j]->return_type() == 'R'){
                     diag_conductance += 1 / (node_vector[i]->return_components()[j]->return_value(0));
