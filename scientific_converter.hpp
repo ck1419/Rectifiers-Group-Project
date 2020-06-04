@@ -15,7 +15,7 @@ float scientific_converter(string input){
         multiplier = 1e-12;
     }else if (exponential == 'n'){
         multiplier = 1e-9;
-    }else if (exponential == 'u' || exponential == 'µ'){
+    }else if (exponential == 'u'){
         multiplier = 1e-6;
     }else if (exponential == 'm'){
         multiplier = 1e-3;

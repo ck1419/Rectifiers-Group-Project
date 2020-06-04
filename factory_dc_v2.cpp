@@ -24,8 +24,9 @@ done 1) Take in components and sources from netlist (current sources and voltage
 */
 
 
-int main()
+int main(int argc, char** argv)
 {
+    string calc_node = argv[1];
 
     //NEW VARIABLE DECLARATIONS (MERGED WITH OLD ONES)
     vector<node*> node_vector;      //keep track of nodes and their connected components
@@ -75,7 +76,6 @@ int main()
             }
         }
 
-
         //creating conditionals for parsing in the various components from the netlist
         bool is_component = (name[0] == 'R' || name[0] == 'C' || name[0] == 'L');                //support for C and L comes later
         bool is_source = (name[0] == 'I' || name[0] == 'V'); //support for current sources and voltage sources
@@ -114,10 +114,8 @@ int main()
         input.clear();
     }
 
-
-
     //////////TEST PRINT//////////
-    cerr << endl << "Print components" << endl;
+/*    cerr << endl << "Print components" << endl;
     for (int i = 0; i < components.size(); i++){ //print components
         cerr << components[i]->return_type() << " " << components[i]->return_nodes()[0]->return_ID() << " " << components[i]->return_nodes()[1]->return_ID();
         cerr << " " << components[i]->return_value(0) << endl;
@@ -127,20 +125,19 @@ int main()
         cerr << node_vector[i]->return_ID() << " ";
     }
     cerr << endl;
-
-
-    cout << "VOLTAGE COUNT: " << voltage_source_counter << endl;
+*/
+    //cout << "VOLTAGE COUNT: " << voltage_source_counter << endl;
     /////////ARRAY STORAGE/////////
     const int h = node_vector.size()+voltage_source_counter+capacitor_counter-1;
     const int w = node_vector.size()+voltage_source_counter+capacitor_counter-1;
     MatrixXd g(h, w);
-    cout << "H: " << h << " W: " << w << endl;
+    //cout << "H: " << h << " W: " << w << endl;
 
     //CREATES G MATRIX
     for (int i=0; i<components.size(); i++){
         int node1_ID = components[i]->return_nodes()[0]->return_ID()-1;
         int node2_ID = components[i]->return_nodes()[1]->return_ID()-1;
-        cout << components[i]->return_name() << endl;
+        //cout << components[i]->return_name() << endl;
         if (components[i]->return_type()=='R'){
             if (node1_ID!=-1){
                 g(node1_ID, node1_ID) += 1/components[i]->return_value(0);
@@ -168,12 +165,10 @@ int main()
         }
     }
 
-
-
     //////////TEST PRINT CONDUCTANCE MATRIX//////////
-    cerr << endl << "Conductance Matrix" << endl << g << endl;
-
-
+    //cerr << endl << "Conductance Matrix" << endl << g << endl;
+      cout << "Time " << "V(" << calc_node << ")" << endl;
+      int calc_node_ID = stoi(calc_node.substr(1))-1;
     /////////RUNS TRANSIENT SIM//////////
     for (float t=0; t<=stop_time; t+=time_step){
         /////////CALCULATE CURRENT MATRIX//////////
@@ -188,11 +183,12 @@ int main()
         v = g.fullPivLu().solve(current);
 
         /////////TEST PRINT RESULTS/////////
-        cerr << endl << "/////////////////////////////////////////////////////////////////////////////////////////" << endl;
+/*        cerr << endl << "/////////////////////////////////////////////////////////////////////////////////////////" << endl;
         cerr << endl << "TIME " << t << endl;
         cerr << endl << "Current Matrix" << endl << current << endl;
         cerr << endl << "Voltage Matrix" << endl << v << endl;
-	    ////////INPUTTING NEW VALUES INTO PREV VARIABLES////////////////
+*/	cout << t << '\t' << v(calc_node_ID, 0) << endl;
+	 ////////INPUTTING NEW VALUES INTO PREV VARIABLES////////////////
         for (int i=0; i<components.size(); i++){
             ///////////SETTING CAPACTIOR PREVIOUS VALUES (CURRENT)//////////////
             if (components[i]->return_type()=='C'){
