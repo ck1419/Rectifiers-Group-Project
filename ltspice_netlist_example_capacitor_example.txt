@@ -1,5 +1,5 @@
 V1 N001 0 5
 R1 N002 N001 1k
 C1 N002 0 1m
-.tran 0 10u 0
+.tran 0 100 10m
 .end
