@@ -69,7 +69,7 @@ class base_class
         node* node2;
         node* node3;    //Optional for BJTs
         string name;       
-        float current, voltage, value;
+        float current, voltage, value, prev_cv, tot_acc;
         char type;
         bool node3_exists = false;
         bool current_found = false;
@@ -95,6 +95,12 @@ class base_class
 
         //Returns 1 if current is set, 0 if current is still not found;
         virtual bool current_calculated();
+
+	//Sets the previous value of current/voltage
+	virtual void set_prev_cv(float cv);
+
+	//Adds onto the accumulator for caps and inductors
+	virtual void set_tot_acc(float add_on);
 };
 
 
@@ -110,6 +116,8 @@ class basic_component: public base_class
             node1 = c_node1;
             node2 = c_node2;
             name = c_name;
+	    prev_cv = 0;
+	    tot_acc = 0;
         }
 
         //Returns value of component with respects to time

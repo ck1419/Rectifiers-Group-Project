@@ -108,10 +108,27 @@ bool base_class::current_calculated(){
     return current_found;
 }
 
+void base_class::set_prev_cv(float cv){
+    prev_cv = cv;
+}
 
+void base_class::set_tot_acc(float add_on){
+    tot_acc += add_on;
+}
 
 float basic_component::return_value(float t){
+    if(type == 'R'){
     return value;
+    } else if(type == 'C'){
+	float charge = prev_cv * t;
+	set_tot_acc(charge);
+	return tot_acc/value;
+
+    } else if(type == 'L'){
+	float dt = prev_cv * t;
+        set_tot_acc(dt);
+	return dt/value;
+    }
 }
 
 

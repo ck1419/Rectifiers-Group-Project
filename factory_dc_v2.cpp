@@ -107,8 +107,7 @@ int main()
             voltage_source_counter++;
         } else if (input[0]=='C'){
             capacitor_counter++;
-        }
-
+	}
         //Add nodes to the node vector
         node_vector = add_nodes_to_vector(truenode1, truenode2, components[component_counter], node_vector);
         component_counter += 1;
@@ -159,7 +158,7 @@ int main()
                 g(node1_ID, node2_ID) -= 1/components[i]->return_value(0);
                 g(node2_ID, node1_ID) -= 1/components[i]->return_value(0);
             }
-        } else if (components[i]->return_type()=='V'){
+        } else if (components[i]->return_type()=='V' || components[i]->return_type()=='C'){
             if (node1_ID!=-1){
                 g(stoi(components[i]->return_name().substr(1))+node_vector.size()-2, node1_ID) = 1;
                 g(node1_ID, stoi(components[i]->return_name().substr(1))+node_vector.size()-2) = 1;
@@ -168,7 +167,7 @@ int main()
                 g(stoi(components[i]->return_name().substr(1))+node_vector.size()-2, node2_ID) = -1;
                 g(node2_ID, stoi(components[i]->return_name().substr(1))+node_vector.size()-2) = -1;
             }
-        }        
+        }
     }
 
 
@@ -196,5 +195,21 @@ int main()
         cerr << endl << "TIME " << t << endl;
         cerr << endl << "Current Matrix" << endl << current << endl;
         cerr << endl << "Voltage Matrix" << endl << v << endl;
+	////////INPUTTING NEW VALUES INTO PREV VARIABLES////////////////
+	for (int i=0; i<components.size(); i++){
+	    ///////////SETTING CAPACTIOR PREVIOUS VALUES (CURRENT)//////////////
+	    if (components[i]->return_type()=='C'){
+		if (components[i]->return_nodes()[0]->return_ID() != 0){
+                    float cap_current = v((stoi(components[i]->return_name().substr(1))+node_vector.size()-2), 1);
+		    components[i]->set_prev_cv(cap_current);
+		}
+	    ///////////SETTING INDUCTOR PREVIOUS VALUES (VOLTAGE)///////////////
+	    }else if (components[i]->return_type() == 'L'){
+		if (components[i]->return_nodes()[1]->return_ID() != 0){
+		    float ind_voltage = v((components[i]->return_nodes()[1]->return_ID()-1), 1) - v((components[i]->return_nodes()[0]->return_ID()-1), 1);
+		    components[i]->set_prev_cv(ind_voltage);
+		}
+	    }
+	}
     }
 }
