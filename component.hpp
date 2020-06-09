@@ -97,7 +97,7 @@ class base_class
         virtual bool current_calculated();
 
 	//Sets the previous value of current/voltage
-	virtual void set_prev_cv(float cv);
+	virtual void set_prev_cv(float cv) =0;
 
 	//Adds onto the accumulator for caps and inductors
 	virtual void set_tot_acc(float add_on);
@@ -119,6 +119,9 @@ class basic_component: public base_class
 	    prev_cv = 0;
 	    tot_acc = 0;
         }
+
+	//Sets the previous current/voltage depending on whether component is capacitor/inductor
+	void set_prev_cv(float cv);
 
         //Returns value of component with respects to time
         float return_value(float t);
@@ -146,6 +149,8 @@ class source: public base_class
             amplitude = c_amplitude;
         }
 
+	void set_prev_cv(float cv);
+
         //Placeholder for variable output depending on source type
         float return_value(float t);
 };
@@ -157,17 +162,21 @@ class nonlinear_component: public base_class
     protected:
         string model;
         //variables for newton-rhapson method
-        float old_value;
-    
+	base_class* Ieq;
+	base_class* Req;
+	float Isat;
+	float Vtemp;
     public:
         //Constructor for diodes
-        nonlinear_component(char c_type, float c_value, node *c_node1, node *c_node2, string c_name, string c_model){
+        nonlinear_component(char c_type, node *c_node1, node *c_node2, string c_name, string c_model){
             type = c_type;
-            value = c_value;
             node1 = c_node1;
             node2 = c_node2;
             name = c_name;
             model = c_model;
+	    Isat = 0;
+	    Vtemp = 0;
+	    prev_cv = 0;
         }
 
         //Constructor for transistors
@@ -183,10 +192,9 @@ class nonlinear_component: public base_class
         }
 
         //Returns value of previous iteration;
-        float return_old_value();
+	void set_prev_cv(float cv);
 
         //Returns approximate linear approximation via newton-rhapson method (ADD TRANSISTOR FUNCTIONALITY)
-        float return_value(float v_old, float R, float VA);
 };
 
 

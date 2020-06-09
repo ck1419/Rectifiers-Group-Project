@@ -108,12 +108,12 @@ bool base_class::current_calculated(){
     return current_found;
 }
 
-void base_class::set_prev_cv(float cv){
-    prev_cv = cv;
-}
-
 void base_class::set_tot_acc(float add_on){
     tot_acc += add_on;
+}
+
+void basic_component::set_prev_cv(float cv){
+    prev_cv = cv;
 }
 
 float basic_component::return_value(float t){
@@ -142,43 +142,24 @@ float source::return_value(float t){
     }
 }
 
-
-
-float nonlinear_component::return_value(float v_old, float R, float VA){
-    /*
-    SOURCE: http://www.kennethkuhn.com/students/ee351/diode_solution.pdf
-    Shockley's ideal diode equation for newton-rahpson iterative method      
-            IS * (exp(VD/nVT) - 1) - VA/R + VD/R
-    V_new = -------------------------------------
-                (IS/nVT) * exp(VD/nVT) + 1/R
-    Is = Reverse saturation current of diode
-    VD (v_old) = Voltage across diode
-    nVT = Thermal voltage
-    VA = Applied voltage
-    R = Resistance
-    V_new = New voltage across diode
-    */
-    if (model == "D"){
-        float old_value = v_old;
-
-        float Is = 3e-9;         //Placeholder value
-        float nVt = 0.05;        //Placeholder value
-        float top = Is * ( pow(M_E, v_old/nVt)-1 ) - (VA/R) + (v_old/R);
-        float bottom = (Is/nVt) * pow(M_E, v_old/nVt) + (1/R);
-        float v_new = top/bottom;
-
-        return v_new;
-    }
-    if (model == "NPN"){
-        return 1;
-    }
-    if (model == "PNP"){
-        return 1;
-    }
+void source::set_prev_cv(float cv){
+    prev_cv = cv;
 }
 
+void nonlinear_component::set_prev_cv(float cv){
+    if (model == "D"){
+    prev_cv = cv;
+    Isat = 3e-9;         //Placeholder value
+    Vtemp = 0.025;        //Placeholder value
+    float I_component = Isat * ( pow(M_E, prev_cv/Vtemp)-1 );
+    Req = new basic_component('R', 1/(I_component/Vtemp), node1, node2, "Req");
+    Ieq = new source('I', "dc" , node1, node2, "Ieq", 0, (I_component - (I_component/Vtemp)*prev_cv), 0);
+    }
+    if (model == "NPN"){
+	//not implemented
+    }
+    if (model == "PNP"){
+	//not implemented
+    }
 
-
-float nonlinear_component::return_old_value(){
-    return old_value;
 }
