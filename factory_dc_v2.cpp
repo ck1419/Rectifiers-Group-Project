@@ -32,6 +32,7 @@ int main(int argc, char** argv)
 {
     string calc_node = argv[1];
 
+
     //NEW VARIABLE DECLARATIONS (MERGED WITH OLD ONES)
     vector<node*> node_vector;      //keep track of nodes and their connected components
     vector<base_class*> components; //stores all the components in the circuit
@@ -48,11 +49,10 @@ int main(int argc, char** argv)
     bool looper = 1;
     bool final_loop = 0;
     bool cond = 1;
-     /////////BOOLEAN DEFINITIONS//////////
+
 
     /////////TAKE IN INDIVIDUAL LINES and define COMPONENTS/////////
-    while (getline(cin, input))
-    {
+    while (getline(cin, input)){
 
         float frequency = 0;
         float amplitude = 0;
@@ -85,10 +85,12 @@ int main(int argc, char** argv)
             }
         }
 
+
         //creating conditionals for parsing in the various components from the netlist
         bool is_component = (name[0] == 'R' || name[0] == 'C' || name[0] == 'L');                //support for C and L comes later
         bool is_source = (name[0] == 'I' || name[0] == 'V'); //support for current sources and voltage sources
 	    bool is_nonlinear_component = (name[0] == 'D'); //support for diodes
+
 
         //creating dynamic storage for the nodes that have been inputted
         node *truenode1;
@@ -105,6 +107,7 @@ int main(int argc, char** argv)
             truenode2 = new node(stoi(node2));
         }
 
+
         //Add components/sources to component vector (WITH SINE SOURCE SUPPORT)
         if (is_component){
             components.push_back(new basic_component(input[0], value, truenode1, truenode2, name));
@@ -112,53 +115,49 @@ int main(int argc, char** argv)
             components.push_back(new source(input[0], source_type, truenode1, truenode2, name, frequency, value, amplitude));
         }else if (is_nonlinear_component){
 	    components.push_back(new nonlinear_component(input[0], truenode1, truenode2, name, "ideal_diode"));
-	}
+        }
+
+
         if (input[0]=='V'){
             voltage_source_counter++;
         } else if (input[0]=='C'){
             capacitor_counter++;
-	} else if (input[0]=='D'){
-	    diode_checker=1;
-	}
+        } else if (input[0]=='D'){
+            diode_checker=1;
+        }
+
+
         //Add nodes to the node vector
         node_vector = add_nodes_to_vector(truenode1, truenode2, components[component_counter], node_vector);
         component_counter += 1;
         input.clear();
     }
 
-    //////////TEST PRINT//////////
-/*    cerr << endl << "Print components" << endl;
-    for (int i = 0; i < components.size(); i++){ //print components
-        cerr << components[i]->return_type() << " " << components[i]->return_nodes()[0]->return_ID() << " " << components[i]->return_nodes()[1]->return_ID();
-        cerr << " " << components[i]->return_value(0) << endl;
-    }
-    cerr << endl << "Print nodes" << endl;
-    for (int i = 0; i < node_vector.size(); i++){ //print nodes
-        cerr << node_vector[i]->return_ID() << " ";
-    }
-    cerr << endl;
-*/
-    //cout << "VOLTAGE COUNT: " << voltage_source_counter << endl;
+
     /////////ARRAY STORAGE/////////
     const int h = node_vector.size()+voltage_source_counter+capacitor_counter-1;
     const int w = node_vector.size()+voltage_source_counter+capacitor_counter-1;
     MatrixXd g(h, w);
-    //cout << "H: " << h << " W: " << w << endl;
 
-/////////RUNS TRANSIENT SIM//////////
-cout << "Time " << "V(" << calc_node << ")" << endl;
-int calc_node_ID = stoi(calc_node.substr(1))-1;
-for (float t=0; t<=stop_time; t+=time_step){
-diode_checker = 1;
-while (looper){
-if(cond){
-final_loop = 0;
+
+    /////////RUNS TRANSIENT SIM//////////
+    cout << "Time " << "V(" << calc_node << ")" << endl;
+    int calc_node_ID = stoi(calc_node.substr(1))-1;
+    for (float t=0; t<=stop_time; t+=time_step){
+    diode_checker = 1;
+    while (looper){
+    if(cond){
+    final_loop = 0;
+
+
     //SET G MATRIX TO 0
     for (int i=0; i<h; i++){
-	for(int j=0; j<w; j++){
-	    g(i,j) = 0;
-	}
+        for(int j=0; j<w; j++){
+            g(i,j) = 0;
+        }
     }
+
+
     //CREATES G MATRIX
     for (int i=0; i<components.size(); i++){
         int node1_ID = components[i]->return_nodes()[0]->return_ID()-1;
@@ -230,38 +229,32 @@ if(diode_checker == 5){
         MatrixXd v(h,1);
         v = g.fullPivLu().solve(current);
 
-        /////////TEST PRINT RESULTS/////////
-/*        cerr << endl << "/////////////////////////////////////////////////////////////////////////////////////////" << endl;
-        cerr << endl << "TIME " << t << endl;
-        cerr << endl << "Current Matrix" << endl << current << endl;
-        cerr << endl << "Voltage Matrix" << endl << v << endl;
-*/
-	 if(final_loop == 1){
-	     cout << t << '\t' << v(calc_node_ID, 0) << endl;
-	 }
-	 ////////INPUTTING NEW VALUES INTO PREV VARIABLES////////////////
-	 for (int i=0; i<components.size(); i++){
-            ///////////SETTING CAPACTIOR PREVIOUS VALUES (CURRENT)//////////////
-            if (components[i]->return_type()=='C' && final_loop == 1){
-                if (components[i]->return_nodes()[0]->return_ID() != 0){
-                    float cap_current = v((stoi(components[i]->return_name().substr(1))+node_vector.size()+voltage_source_counter-2), 0);
-                    components[i]->set_prev_cv(cap_current);
-                }
-            ///////////SETTING INDUCTOR PREVIOUS VALUES (VOLTAGE)///////////////
-            }else if (components[i]->return_type() == 'L' && final_loop == 1){
-                if (components[i]->return_nodes()[1]->return_ID() != 0){
-                    float ind_voltage = v((components[i]->return_nodes()[1]->return_ID()-1), 0) - v((components[i]->return_nodes()[0]->return_ID()-1), 0);
-                    components[i]->set_prev_cv(ind_voltage);
-                }
-	    //////////SETTING DIODE PREVIOUS VALUES
-            }else if (components[i]->return_type() == 'D' && final_loop == 0){
-		if (components[i]->return_nodes()[1]->return_ID() != 0){
-		    prev_diode_vd = v((components[i]->return_nodes()[1]->return_ID()-1) , 0);
-		    components[i]->set_prev_cv(prev_diode_vd);
-		}
 
+	if(final_loop == 1){
+	    cout << t << '\t' << v(calc_node_ID, 0) << endl;
+	}
+	////////INPUTTING NEW VALUES INTO PREV VARIABLES////////////////
+	for (int i=0; i<components.size(); i++){
+        ///////////SETTING CAPACTIOR PREVIOUS VALUES (CURRENT)//////////////
+        if (components[i]->return_type()=='C' && final_loop == 1){
+            if (components[i]->return_nodes()[0]->return_ID() != 0){
+                float cap_current = v((stoi(components[i]->return_name().substr(1))+node_vector.size()+voltage_source_counter-2), 0);
+                components[i]->set_prev_cv(cap_current);
+            }
+        ///////////SETTING INDUCTOR PREVIOUS VALUES (VOLTAGE)///////////////
+        }else if (components[i]->return_type() == 'L' && final_loop == 1){
+            if (components[i]->return_nodes()[1]->return_ID() != 0){
+                float ind_voltage = v((components[i]->return_nodes()[1]->return_ID()-1), 0) - v((components[i]->return_nodes()[0]->return_ID()-1), 0);
+                components[i]->set_prev_cv(ind_voltage);
+            }
+	    //////////SETTING DIODE PREVIOUS VALUES
+        }else if (components[i]->return_type() == 'D' && final_loop == 0){
+            if (components[i]->return_nodes()[1]->return_ID() != 0){
+                prev_diode_vd = v((components[i]->return_nodes()[1]->return_ID()-1) , 0);
+                components[i]->set_prev_cv(prev_diode_vd);
+            }
 	    }
-        }
+    }
 }
 if(final_loop == 1){
 	break;

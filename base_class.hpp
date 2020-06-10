@@ -53,6 +53,10 @@ class base_class
         virtual float return_value(float t);
         virtual float return_value(float t, bool final_loop_checker);
         
+
+        //For global functionality
+        virtual base_class* return_Req();
+        virtual base_class* return_Ieq();
 };
 
 
