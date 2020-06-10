@@ -31,7 +31,7 @@ vector<float> find_current(vector<base_class*> all_components, int matrix_base_s
         //Add inductor values to matrix
         else if (all_components[i]->return_type() == 'L'){
             if (all_components[i]->return_nodes()[1]->return_ID() != 0){
-                current_matrix[ all_components[i]->return_nodes()[1]->return_ID()-1 ] += all_components[i]->return_value(time_step, bool final_loop_checker);
+                current_matrix[ all_components[i]->return_nodes()[1]->return_ID()-1 ] += all_components[i]->return_value(time_step, final_loop_checker);
             }
         }
         //Add voltage values to the matrix
