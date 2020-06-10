@@ -28,7 +28,7 @@ class source: public base_class
 
 
         //Returns the output value of the source depending on the type of the source
-        float return_value(float t){
+        float return_value(float t, bool final_loop_checker){
             if (output_type == "sine"){
                 return ( amplitude*sin(2*M_PI*frequency*t) ) + value;
             }

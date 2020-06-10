@@ -1,8 +1,8 @@
 #include "base_class.hpp"
 #include "basic_component.hpp"
 #include "node.hpp"
-#include "nonlinear_component.hpp"
 #include "source.hpp"
+#include "nonlinear_component.hpp"
 #ifndef current_matrix_hpp
 #define current_matrix_hpp
 using namespace std;
@@ -19,13 +19,13 @@ vector<float> find_current(vector<base_class*> all_components, int matrix_base_s
         //Add values to the current matrix
         if (all_components[i]->return_type() == 'I'){
             if (all_components[i]->return_nodes()[1]->return_ID() != 0){
-                current_matrix[ all_components[i]->return_nodes()[1]->return_ID()-1 ] += all_components[i]->return_value(t);
+                current_matrix[ all_components[i]->return_nodes()[1]->return_ID()-1 ] += all_components[i]->return_value(t, 0);
             }
         }
         //Add diode values to matrix
         else if (all_components[i]->return_type() == 'D'){
             if (all_components[i]->return_Ieq()->return_nodes()[1]->return_ID() != 0){
-                current_matrix[ all_components[i]->return_Ieq()->return_nodes()[1]->return_ID()-1 ] += all_components[i]->return_Ieq()->return_value(t);
+                current_matrix[ all_components[i]->return_Ieq()->return_nodes()[1]->return_ID()-1 ] += all_components[i]->return_Ieq()->return_value(t, 0);
             }
         }
         //Add inductor values to matrix
@@ -37,7 +37,7 @@ vector<float> find_current(vector<base_class*> all_components, int matrix_base_s
         //Add voltage values to the matrix
         else if (all_components[i]->return_type() == 'V'){
             if (all_components[i]->return_nodes()[0]->return_ID() != 0){
-                current_matrix[ stoi(all_components[i]->return_name().substr(1)) + matrix_base_size -1] = all_components[i]->return_value(t);
+                current_matrix[ stoi(all_components[i]->return_name().substr(1)) + matrix_base_size -1] = all_components[i]->return_value(t, 0);
             }
         }
         //Add capacitor values to the matrix

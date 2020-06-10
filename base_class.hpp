@@ -15,11 +15,11 @@ class node;
 class base_class
 {
     protected:
-        node* node1;
+        node* node1;                    //Used to tell which nodes this component is connected to
         node* node2;
         string name;       
         float value;
-        float prev_cv = 0;
+        float prev_cv = 0;              //Used for transient sims to store the previous voltage/current value
         char type;
 
 
@@ -49,14 +49,19 @@ class base_class
         }
         
 
-        //Returns value of the component
-        virtual float return_value(float t);
-        virtual float return_value(float t, bool final_loop_checker);
+        //Returns current/voltage/resistance depending on subclass (Will be overwritten in the appropriate subclasses)
+        virtual float return_value(float t, bool final_loop_checker){
+            return 1;
+        }
         
 
-        //For global functionality
-        virtual base_class* return_Req();
-        virtual base_class* return_Ieq();
+        //Used for nonlinear components and will be overwritten. Function is here to allow access to them in the base_class vector
+        virtual base_class* return_Req(){
+            return this;
+        }
+        virtual base_class* return_Ieq(){
+            return this;
+        }
 };
 
 

@@ -1,8 +1,8 @@
 #include "base_class.hpp"
-#include "basic_component.hpp"
-#include "node.hpp"
-#include "nonlinear_component.hpp"
 #include "source.hpp"
+#include "basic_component.hpp"
+#include "nonlinear_component.hpp"
+#include "node.hpp"
 #include "current_matrix_v2.hpp"
 #include "scientific_converter.hpp"
 #include "add_nodes_to_vector.hpp"
@@ -165,14 +165,14 @@ int main(int argc, char** argv)
         //cout << components[i]->return_name() << endl;
         if (components[i]->return_type()=='R'){
             if (node1_ID!=-1){
-                g(node1_ID, node1_ID) += 1/components[i]->return_value(0);
+                g(node1_ID, node1_ID) += 1/components[i]->return_value(0, 0);
             }
             if (node2_ID!=-1){
-                g(node2_ID, node2_ID) += 1/components[i]->return_value(0);
+                g(node2_ID, node2_ID) += 1/components[i]->return_value(0, 0);
             }
             if (node1_ID!=-1 && node2_ID!=-1){
-                g(node1_ID, node2_ID) -= 1/components[i]->return_value(0);
-                g(node2_ID, node1_ID) -= 1/components[i]->return_value(0);
+                g(node1_ID, node2_ID) -= 1/components[i]->return_value(0, 0);
+                g(node2_ID, node1_ID) -= 1/components[i]->return_value(0, 0);
             }
 	} else if (components[i]->return_type()=='D'){
             if(diode_checker == 1){
@@ -180,14 +180,14 @@ int main(int argc, char** argv)
             }
 
 	    if (node1_ID!=-1){
-                g(node1_ID, node1_ID) += 1/components[i]->return_Req()->return_value(0);
+                g(node1_ID, node1_ID) += 1/components[i]->return_Req()->return_value(0, 0);
             }
             if (node2_ID!=-1){
-                g(node2_ID, node2_ID) += 1/components[i]->return_Req()->return_value(0);
+                g(node2_ID, node2_ID) += 1/components[i]->return_Req()->return_value(0, 0);
             }
             if (node1_ID!=-1 && node2_ID!=-1){
-                g(node1_ID, node2_ID) -= 1/components[i]->return_Req()->return_value(0);
-                g(node2_ID, node1_ID) -= 1/components[i]->return_Req()->return_value(0);
+                g(node1_ID, node2_ID) -= 1/components[i]->return_Req()->return_value(0, 0);
+                g(node2_ID, node1_ID) -= 1/components[i]->return_Req()->return_value(0, 0);
 	    }
         } else if (components[i]->return_type()=='V' || components[i]->return_type()=='C'){
             float position = stoi(components[i]->return_name().substr(1))+node_vector.size()-2;
