@@ -115,7 +115,6 @@ int main()
     for (int i=0; i<components.size(); i++){
         int node1_ID = components[i]->return_nodes()[0]->return_ID()-1;
         int node2_ID = components[i]->return_nodes()[1]->return_ID()-1;
-        cout << components[i]->return_name() << endl;
         if (components[i]->return_type()=='R'){
             if (node1_ID!=-1){
                 g(node1_ID, node1_ID) += 1/components[i]->return_value(0, 0);
@@ -144,6 +143,14 @@ int main()
     }
 
     /////////RUNS TRANSIENT SIM//////////
+    
+    for(int b=0; b<node_vector.size();b++){
+        if(node_vector[b]->return_ID()!=0){
+            cout << '\t' << "V(" << node_vector[b]->return_ID() << ")";
+        }
+    }
+
+    /////////RUNS TRANSIENT SIM//////////
     for (float t=0; t<=stop_time; t+=time_step){
         /////////CALCULATE CURRENT MATRIX//////////
         MatrixXd current(h,1);
@@ -156,7 +163,7 @@ int main()
         MatrixXd v(h,1);
         v = g.fullPivLu().solve(current);
 
-
+        cout << t;
         for(int b=0; b<node_vector.size();b++){
             if(node_vector[b]->return_ID()!=0){
                 cout << '\t' << v((node_vector[b]->return_ID()-1),0);
