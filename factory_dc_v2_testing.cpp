@@ -41,12 +41,12 @@ int main()
     int component_counter = 0; //component counter for figuring out current number of component
     int voltage_source_counter = 0;
     int capacitor_counter = 0;
-    int diode_checker = 0;
+    bool diode_checker = 0;
     float prev_diode_vd = 0;
     bool looper = 1;
     bool final_loop = 0;
     bool cond = 1;
-
+    int diode_counter = 0;
 
     /////////TAKE IN INDIVIDUAL LINES and define COMPONENTS/////////
     while (getline(cin, input)){
@@ -206,13 +206,13 @@ int main()
                     }
                 }
 
-                if(diode_checker == 0){
+                if(!diode_checker){
                     cond = 0;
                     final_loop = 1;
                 }else{
-                    diode_checker++;
+                    diode_counter++;
                 }
-                if(diode_checker == 5){
+                if(diode_counter == 5){
                     final_loop = 1;
                 }
             }
@@ -230,7 +230,7 @@ int main()
             //////////CALCULATE VOLTAGE MATRIX//////////
             MatrixXd v(h,1);
             v = g.fullPivLu().solve(current);
-            if(final_loop == 1){
+            if(final_loop){
       	    cout << t;
     	    for(int b=0; b<node_vector.size();b++){
         	if(node_vector[b]->return_ID()!=0){
@@ -243,7 +243,7 @@ int main()
             ////////INPUTTING NEW VALUES INTO PREV VARIABLES////////////////
             for (int i=0; i<components.size(); i++){
                 ///////////SETTING CAPACTIOR PREVIOUS VALUES (CURRENT)//////////////
-                if (components[i]->return_type()=='C' && final_loop == 1){
+                if (components[i]->return_type()=='C' && final_loop){
                     if (components[i]->return_nodes()[0]->return_ID() != 0){
                         float cap_current = v((stoi(components[i]->return_name().substr(1))+node_vector.size()+voltage_source_counter-2), 0);
                         components[i]->set_prev_cv(cap_current);
@@ -251,7 +251,7 @@ int main()
 
 
                 ///////////SETTING INDUCTOR PREVIOUS VALUES (VOLTAGE)///////////////
-                }else if (components[i]->return_type() == 'L' && final_loop == 1){
+                }else if (components[i]->return_type() == 'L' && final_loop){
                     if (components[i]->return_nodes()[1]->return_ID() != 0){
                         float ind_voltage = v((components[i]->return_nodes()[1]->return_ID()-1), 0) - v((components[i]->return_nodes()[0]->return_ID()-1), 0);
                         components[i]->set_prev_cv(ind_voltage);
@@ -259,7 +259,7 @@ int main()
 
 
                 //////////SETTING DIODE PREVIOUS VALUES
-                }else if (components[i]->return_type() == 'D' && final_loop == 0){
+                }else if (components[i]->return_type() == 'D' && !final_loop){
                     if (components[i]->return_nodes()[1]->return_ID() != 0){
                         prev_diode_vd = v((components[i]->return_nodes()[1]->return_ID()-1) , 0);
                         components[i]->set_prev_cv(prev_diode_vd);
@@ -267,8 +267,8 @@ int main()
                 }
             }
 
-        if(final_loop == 1){
-	       diode_checker = 1;
+        if(final_loop){
+	       diode_counter = 0;
 	       break;
         }
 

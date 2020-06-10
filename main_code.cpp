@@ -143,12 +143,13 @@ int main()
     }
 
     /////////RUNS TRANSIENT SIM//////////
-    
+    cout << "Time";
     for(int b=0; b<node_vector.size();b++){
         if(node_vector[b]->return_ID()!=0){
             cout << '\t' << "V(" << node_vector[b]->return_ID() << ")";
         }
     }
+    cout << endl;
 
     /////////RUNS TRANSIENT SIM//////////
     for (float t=0; t<=stop_time; t+=time_step){
@@ -169,6 +170,7 @@ int main()
                 cout << '\t' << v((node_vector[b]->return_ID()-1),0);
             }
     	}
+	cout << endl;
 
 
 	    ////////INPUTTING NEW VALUES INTO PREV VARIABLES////////////////
