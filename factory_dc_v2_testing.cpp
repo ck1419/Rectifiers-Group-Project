@@ -146,7 +146,6 @@ int main()
     }
     cout << endl;
     for (float t=0; t<=stop_time; t+=time_step){
-        diode_checker = 1;
         while (looper){
             if(cond){
                 final_loop = 0;
@@ -235,7 +234,7 @@ int main()
       	    cout << t;
     	    for(int b=0; b<node_vector.size();b++){
         	if(node_vector[b]->return_ID()!=0){
-            	    cout << '\t' << v(node_vector[b]->return_ID()-2,0);
+            	    cout << '\t' << v((node_vector[b]->return_ID()-1),0);
         	}
     	    }
     	    cout << endl;
@@ -267,11 +266,12 @@ int main()
                     }
                 }
             }
-        }
-
 
         if(final_loop == 1){
-            break;
+	       diode_checker = 1;
+	       break;
         }
+
+	}
     }
 }
