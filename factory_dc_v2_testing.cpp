@@ -28,11 +28,8 @@ done 1) Take in components and sources from netlist (current sources and voltage
 */
 
 
-int main(int argc, char** argv)
+int main()
 {
-    string calc_node = argv[1];
-
-
     //NEW VARIABLE DECLARATIONS (MERGED WITH OLD ONES)
     vector<node*> node_vector;      //keep track of nodes and their connected components
     vector<base_class*> components; //stores all the components in the circuit
@@ -141,8 +138,13 @@ int main(int argc, char** argv)
 
 
     /////////RUNS TRANSIENT SIM//////////
-    cout << "Time" << '\t' << "V(" << calc_node << ")" << endl;
-    int calc_node_ID = stoi(calc_node.substr(1))-1;
+    cout << "Time";
+    for(int b=0; b<node_vector.size();b++){
+	if(node_vector[b]->return_ID()!=0){
+	    cout << '\t' << "V(" << node_vector[b]->return_ID() << ")";
+    	}
+    }
+    cout << endl;
     for (float t=0; t<=stop_time; t+=time_step){
         diode_checker = 1;
         while (looper){
@@ -230,9 +232,14 @@ int main(int argc, char** argv)
             MatrixXd v(h,1);
             v = g.fullPivLu().solve(current);
             if(final_loop == 1){
-                cout << t << '\t' << v(calc_node_ID, 0) << endl;
-            }
-
+      	    cout << t;
+    	    for(int b=0; b<node_vector.size();b++){
+        	if(node_vector[b]->return_ID()!=0){
+            	    cout << '\t' << v(node_vector[b]->return_ID()-2,0);
+        	}
+    	    }
+    	    cout << endl;
+	    }
 
             ////////INPUTTING NEW VALUES INTO PREV VARIABLES////////////////
             for (int i=0; i<components.size(); i++){
