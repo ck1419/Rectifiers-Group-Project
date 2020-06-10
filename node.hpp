@@ -2,6 +2,9 @@
 #define node_hpp
 
 
+#include "base_class.hpp"
+
+
 //Class for storing node data
 class node
 {

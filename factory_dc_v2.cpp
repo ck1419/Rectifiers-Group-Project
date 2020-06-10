@@ -88,7 +88,7 @@ int main(int argc, char** argv)
         //creating conditionals for parsing in the various components from the netlist
         bool is_component = (name[0] == 'R' || name[0] == 'C' || name[0] == 'L');                //support for C and L comes later
         bool is_source = (name[0] == 'I' || name[0] == 'V'); //support for current sources and voltage sources
-	bool is_nonlinear_component = name[0] == 'D') //support for diodes
+	    bool is_nonlinear_component = (name[0] == 'D'); //support for diodes
 
         //creating dynamic storage for the nodes that have been inputted
         node *truenode1;
@@ -111,7 +111,7 @@ int main(int argc, char** argv)
         }else if (is_source){
             components.push_back(new source(input[0], source_type, truenode1, truenode2, name, frequency, value, amplitude));
         }else if (is_nonlinear_component){
-	    components.push_back(new nonlinear_component(input[0], truenode1, truenode2, name, "ideal_diode")
+	    components.push_back(new nonlinear_component(input[0], truenode1, truenode2, name, "ideal_diode"));
 	}
         if (input[0]=='V'){
             voltage_source_counter++;
@@ -256,7 +256,7 @@ if(diode_checker == 5){
 	    //////////SETTING DIODE PREVIOUS VALUES
             }else if (components[i]->return_type() == 'D' && final_loop == 0){
 		if (components[i]->return_nodes()[1]->return_ID() != 0){
-		    prev_diode_vd = v(components[i]->return_nodes()[1]->return_ID()-1) , 0);
+		    prev_diode_vd = v((components[i]->return_nodes()[1]->return_ID()-1) , 0);
 		    components[i]->set_prev_cv(prev_diode_vd);
 		}
 

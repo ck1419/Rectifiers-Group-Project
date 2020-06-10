@@ -5,13 +5,18 @@
 #include <vector>
 #include <string>
 #include <cmath>
+using namespace std;
+
+
+class node;
 
 
 //Base class just for inherited functionality so everything can use the same methods when iterating through arrays of components
 class base_class
 {
     protected:
-        node* node1, node2;
+        node* node1;
+        node* node2;
         string name;       
         float value;
         float prev_cv = 0;
@@ -44,8 +49,10 @@ class base_class
         }
         
 
-        //Returns current if inductor, voltage if capacitor
-        virtual float return_value(float t) =0;
+        //Returns value of the component
+        virtual float return_value(float t);
+        virtual float return_value(float t, bool final_loop_checker);
+        
 };
 
 

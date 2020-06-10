@@ -9,7 +9,8 @@ class nonlinear_component: public base_class
 {
     protected:
         string model;
-        base_class* Ieq, Req;
+        base_class* Ieq;
+        base_class* Req;
         float Isat, Vtemp;
 
 
