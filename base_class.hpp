@@ -4,7 +4,7 @@
 
 #include <vector>
 #include <string>
-#include <math>
+#include <cmath>
 
 
 //Base class just for inherited functionality so everything can use the same methods when iterating through arrays of components

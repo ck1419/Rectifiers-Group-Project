@@ -1,4 +1,8 @@
-#include "component.hpp"
+#include "base_class.hpp"
+#include "basic_component.hpp"
+#include "node.hpp"
+#include "nonlinear_component.hpp"
+#include "source.hpp"
 #ifndef add_nodes_to_vector_hpp
 #define add_nodes_to_vector_hpp
 

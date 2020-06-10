@@ -24,15 +24,25 @@ class basic_component: public base_class
 
 
         //Returns value of component depending on the type
-        float return_value(float t){
+        float return_value(float t, bool final_loop_checker){
             if (type == 'R'){               //Resistor
                 return value;
-            } else if (type == 'C'){        //Capacitor
+            } else if (type == 'C'){		//Capacitor
+		if(final_loop_checker){
                 tot_acc += prev_cv * t;
                 return tot_acc/value;
+		}else{
+		float temp_acc = tot_acc + prev_cv * t;
+		return temp_acc/value;
+		}
             } else {                        //Inductor
+		if(final_loop_checker){
                 tot_acc += prev_cv * t;
                 return (prev_cv * t)/value;
+		}else{
+		float temp_acc = tot_acc + prev_cv * t;
+		return (prev_cv * t)/value;
+		}
             }
         }
 };
