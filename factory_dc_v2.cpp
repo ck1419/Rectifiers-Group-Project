@@ -144,7 +144,6 @@ int main(int argc, char** argv)
     cout << "Time" << '\t' << "V(" << calc_node << ")" << endl;
     int calc_node_ID = stoi(calc_node.substr(1))-1;
     for (float t=0; t<=stop_time; t+=time_step){
-        diode_checker = 1;
         while (looper){
             if(cond){
                 final_loop = 0;
@@ -260,11 +259,12 @@ int main(int argc, char** argv)
                     }
                 }
             }
-        }
-
 
         if(final_loop == 1){
-            break;
+            diode_checker = 1;
+	    break;
         }
+
+	}
     }
 }
