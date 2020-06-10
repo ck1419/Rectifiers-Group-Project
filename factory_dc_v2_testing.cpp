@@ -138,7 +138,7 @@ int main()
 
 
     /////////RUNS TRANSIENT SIM//////////
-    cout << "Time";
+    cout << "time";
     for(int b=0; b<node_vector.size();b++){
 	if(node_vector[b]->return_ID()!=0){
 	    cout << '\t' << "V(" << node_vector[b]->return_ID() << ")";
