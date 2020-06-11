@@ -255,10 +255,15 @@ int main()
 
                 ///////////SETTING INDUCTOR PREVIOUS VALUES (VOLTAGE)///////////////
                 }else if (components[i]->return_type() == 'L' && final_loop){
+                    float ind_voltage1 = 0;
+                    float ind_voltage2 = 0;
                     if (components[i]->return_nodes()[1]->return_ID() != 0){
-                        float ind_voltage = v((components[i]->return_nodes()[1]->return_ID()-1), 0) - v((components[i]->return_nodes()[0]->return_ID()-1), 0);
-                        components[i]->set_prev_cv(ind_voltage);
+                        ind_voltage1 = v((components[i]->return_nodes()[1]->return_ID()-1), 0);
                     }
+                    if (components[i]->return_nodes()[0]->return_ID() != 0){
+                        ind_voltage2 = v((components[i]->return_nodes()[0]->return_ID()-1), 0); 
+                    }
+                    components[i]->set_prev_cv(ind_voltage1-ind_voltage2);  
 
 
                 //////////SETTING DIODE PREVIOUS VALUES
