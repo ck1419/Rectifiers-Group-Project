@@ -120,14 +120,13 @@ float basic_component::return_value(float t){
     if(type == 'R'){
     return value;
     } else if(type == 'C'){
-	float charge = prev_cv * t;
-	set_tot_acc(charge);
-	return tot_acc/value;
-
+        float charge = prev_cv * t;
+        set_tot_acc(charge);
+        return tot_acc/value;
     } else if(type == 'L'){
-	float dt = prev_cv * t;
+	    float dt = prev_cv * t;
         set_tot_acc(dt);
-	return dt/value;
+	    return dt/value;
     }
 }
 

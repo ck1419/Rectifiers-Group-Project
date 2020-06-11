@@ -87,6 +87,12 @@ int main()
         //Add components/sources to component vector (WITH SINE SOURCE SUPPORT)
         if (is_component){
             components.push_back(new basic_component(input[0], value, truenode1, truenode2, name));
+            /*
+            if (name[0] == 'C') { //push back parallel resistor for capacitor
+                components.push_back(new basic_component('R',1000000000, truenode1, truenode2, "par_resis"));
+                component_counter += 1;
+            }
+            */
         }else if (is_source){
             
             components.push_back(new source(input[0], source_type, truenode1, truenode2, name, frequency, value, amplitude));
@@ -97,8 +103,8 @@ int main()
         } else if (input[0]=='C'){
             capacitor_counter++;
 	}
-        //Add nodes to the node vector
-        node_vector = add_nodes_to_vector(truenode1, truenode2, components[component_counter], node_vector);
+        //Add nodes to the node vector //DO NOT add capacitor parallel resistance to conductance matrix.
+        node_vector = add_nodes_to_vector(truenode1, truenode2, components[component_counter], node_vector); 
         component_counter += 1;
         input.clear();
     }
