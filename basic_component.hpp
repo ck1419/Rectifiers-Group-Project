@@ -16,6 +16,9 @@ class basic_component: public base_class
             node1 = c_node1;
             node2 = c_node2;
             name = c_name;
+            if (type == 'L'){
+                tot_acc = 0.01;
+            }
         }
 
 
@@ -33,17 +36,11 @@ class basic_component: public base_class
                	    }
             } else {                        //Inductor
                 if(final_loop_checker){
-		    tot_acc += ((prev_cv * t)/value);
-		    if(tot_acc == 0){
-                        tot_acc == 0.01;
-                    }
-		    return tot_acc;
+		            tot_acc += ((prev_cv * t)/value);
+		            return tot_acc;
                 } else {
                     float temp_acc = tot_acc + ((prev_cv * t)/value);
-                    if(temp_acc == 0){
-			temp_acc == 0.01;
-		    }
-		    return temp_acc;
+		            return temp_acc;
                 }
             }
     	}
