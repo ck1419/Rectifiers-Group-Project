@@ -24,20 +24,26 @@ class basic_component: public base_class
             if (type == 'R'){               //Resistor
                 return value;
             } else if (type == 'C'){		//Capacitor
-            if (final_loop_checker){
-                tot_acc += prev_cv * t;
-                return tot_acc/value;
-            } else {
-                float temp_acc = tot_acc + prev_cv * t;
-                return temp_acc/value;
-                }
+	            if (final_loop_checker){
+        	        tot_acc += prev_cv * t;
+               		return tot_acc/value;
+            	    } else {
+                	float temp_acc = tot_acc + prev_cv * t;
+                	return temp_acc/value;
+               	    }
             } else {                        //Inductor
                 if(final_loop_checker){
-                    tot_acc += ((prev_cv * t)/value);
-                    return tot_acc;
+		    tot_acc += ((prev_cv * t)/value);
+		    if(tot_acc == 0){
+                        tot_acc == 0.01;
+                    }
+		    return tot_acc;
                 } else {
                     float temp_acc = tot_acc + ((prev_cv * t)/value);
-                    return temp_acc;
+                    if(temp_acc == 0){
+			temp_acc == 0.01;
+		    }
+		    return temp_acc;
                 }
             }
     	}
