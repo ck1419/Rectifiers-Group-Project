@@ -242,7 +242,7 @@ int main()
         	}
     	    }
 	    }
-
+            cerr << "HERE" << endl;
             ////////INPUTTING NEW VALUES INTO PREV VARIABLES////////////////
             for (int i=0; i<components.size(); i++){
                 ///////////SETTING CAPACTIOR PREVIOUS VALUES (CURRENT)//////////////
@@ -270,6 +270,8 @@ int main()
                 }
             }
 
+            cerr << "HERE2" << endl;
+
             for (int s=0; s<components.size(); s++){
                 ///////////OUTPUTTING CAPACITOR CURRENT//////////////
                 if (components[s]->return_type()=='C' && final_loop){
@@ -281,7 +283,15 @@ int main()
 
                 ///////////OUTPUTTING RESISTOR CURRENT///////////////
                 }else if (components[s]->return_type() == 'R' && final_loop){
-                    float resistor_voltage = v((components[s]->return_nodes()[1]->return_ID()-1), 0) - v((components[s]->return_nodes()[0]->return_ID()-1), 0);
+                    float resistor_voltage1 = 0;
+                    float resistor_voltage2 = 0;
+                    if (components[s]->return_nodes()[1]->return_ID()-1 != -1){
+                        resistor_voltage1 = v((components[s]->return_nodes()[1]->return_ID()-1), 0);
+                    }
+                    if (components[s]->return_nodes()[0]->return_ID()-1 != -1){
+                        resistor_voltage2 = v((components[s]->return_nodes()[0]->return_ID()-1), 0);
+                    }
+                    float resistor_voltage = resistor_voltage1-resistor_voltage2;
                     cout << '\t' << resistor_voltage * 1/(components[s]->return_value(t, final_loop));
 
                 ///////////OUTPUTTING CURRENT SOURCE CURRENT///////////////
