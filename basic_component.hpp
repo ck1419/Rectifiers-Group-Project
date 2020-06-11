@@ -38,10 +38,10 @@ class basic_component: public base_class
             } else {                        //Inductor
                 if(final_loop_checker){
                     tot_acc += prev_cv * t;
-                    return (prev_cv * t)/value;
+                    return tot_acc/value;
                 } else {
                     float temp_acc = tot_acc + prev_cv * t;
-                    return (prev_cv * t)/value;
+                    return temp_acc/value;
                 }
             }
         }
