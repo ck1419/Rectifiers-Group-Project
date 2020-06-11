@@ -145,7 +145,7 @@ int main()
     	}
     }
     cout << endl;
-    for (float t=0; t<=stop_time; t+=time_step){
+    for (long double t=0; t<=stop_time; t+=time_step){
         while (looper){
             if(cond){
                 final_loop = 0;
