@@ -1,0 +1,31 @@
+Circuit: *
+
+Direct Newton iteration for .op point succeeded.
+Operating Bias Point Solution:
+V(n001)                150   voltage
+V(n002)                 50   voltage
+V(n003)              5e-06   voltage
+I(C1)            2.5e-16   device_current
+I(L1)              0.005   device_current
+I(I1)               0.01   device_current
+I(R3)              0.005   device_current
+I(R2)              0.005   device_current
+I(R1)              -0.01   device_current
+
+
+Date: Thu Jun 11 14:50:57 2020
+Total elapsed time: 0.006 seconds.
+
+tnom = 27
+temp = 27
+method = trap
+totiter = 3
+traniter = 0
+tranpoints = 0
+accept = 0
+rejected = 0
+matrix size = 3
+fillins = 0
+solver = Normal
+Matrix Compiler1: 104 object code size
+Matrix Compiler2:      16 opcodes
