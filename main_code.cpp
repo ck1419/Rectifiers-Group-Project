@@ -158,10 +158,10 @@ int main()
     cout << endl;
 
     /////////RUNS TRANSIENT SIM//////////
-    for (float t=0; t<=stop_time; t+=time_step){
+    for (long double t=0; t<=stop_time; t+=0.00001){
         /////////CALCULATE CURRENT MATRIX//////////
         MatrixXd current(h,1);
-        vector<float> temp = find_current(components, node_vector.size()-1, voltage_source_counter, capacitor_counter, t, time_step, 1);
+        vector<float> temp = find_current(components, node_vector.size()-1, voltage_source_counter, capacitor_counter, t, 0.00001, 1);
         for(int f=0; f < temp.size(); f++){
             current(f) = temp[f];
         }
@@ -170,13 +170,17 @@ int main()
         MatrixXd v(h,1);
         v = g.fullPivLu().solve(current);
 
-        cout << t;
-        for(int b=0; b<node_vector.size();b++){
-            if(node_vector[b]->return_ID()!=0){
-                cout << '\t' << v((node_vector[b]->return_ID()-1),0);
+       // if ((t/time_step) ==  int(t/time_step)) {
+            cout << t;
+            cerr << " " << time_step  << " " << t/time_step << " " << int(t/time_step) << " ";
+            for(int b=0; b<node_vector.size();b++){
+                if(node_vector[b]->return_ID()!=0){
+                    cout << '\t' << v((node_vector[b]->return_ID()-1),0);
+                }
             }
-    	}
-	cout << endl;
+            cout << endl;           
+        //}
+
 
 
 	    ////////INPUTTING NEW VALUES INTO PREV VARIABLES////////////////
