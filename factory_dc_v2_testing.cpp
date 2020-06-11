@@ -144,6 +144,10 @@ int main()
 	    cout << '\t' << "V(" << node_vector[b]->return_ID() << ")";
     	}
     }
+    for(int c=0; c<components.size();c++){
+          cout << '\t' << "I(" << components[c]->return_name() << ")";
+    }
+
     cout << endl;
     for (long double t=0; t<=stop_time; t+=time_step){
         while (looper){
@@ -237,7 +241,6 @@ int main()
             	    cout << '\t' << v((node_vector[b]->return_ID()-1),0);
         	}
     	    }
-    	    cout << endl;
 	    }
 
             ////////INPUTTING NEW VALUES INTO PREV VARIABLES////////////////
@@ -266,6 +269,32 @@ int main()
                     }
                 }
             }
+
+            for (int s=0; s<components.size(); s++){
+                ///////////OUTPUTTING CAPACITOR CURRENT//////////////
+                if (components[s]->return_type()=='C' && final_loop){
+                    cout << '\t' << components[s]->return_prev_cv();
+
+                ///////////OUTPUTTING INDUCTOR CURRENT///////////////
+                }else if (components[s]->return_type() == 'L' && final_loop){
+                    cout << '\t' << components[s]->return_tot_acc();
+
+                ///////////OUTPUTTING RESISTOR CURRENT///////////////
+                }else if (components[s]->return_type() == 'R' && final_loop){
+                    float resistor_voltage = v((components[s]->return_nodes()[1]->return_ID()-1), 0) - v((components[s]->return_nodes()[0]->return_ID()-1), 0);
+                    cout << '\t' << resistor_voltage * 1/(components[s]->return_value(t, final_loop));
+
+                ///////////OUTPUTTING CURRENT SOURCE CURRENT///////////////
+                }else if (components[s]->return_type() == 'I' && final_loop){
+                    cout << '\t' << components[s]->return_value(t, final_loop);
+
+                ///////////OUTPUTTING VOLTAGE SOURCE CURRENT///////////////
+                }else if (components[s]->return_type() == 'V' && final_loop){
+                    cout << '\t' << v(stoi(components[s]->return_name().substr(1)) + node_vector.size()-2, 0);
+		}
+            }
+	    cout << endl;
+
 
         if(final_loop){
 	       diode_counter = 0;

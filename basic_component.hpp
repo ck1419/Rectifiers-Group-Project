@@ -8,10 +8,6 @@
 //Class for RCL components
 class basic_component: public base_class
 {
-    protected:
-        float tot_acc = 0;          //Stores total current/voltage in component
-
-
     public:
         //Constructor
         basic_component(char c_type, float c_value, node *c_node1, node *c_node2, string c_name){
@@ -37,14 +33,14 @@ class basic_component: public base_class
                 }
             } else {                        //Inductor
                 if(final_loop_checker){
-                    tot_acc += prev_cv * t;
-                    return tot_acc/value;
+                    tot_acc += ((prev_cv * t)/value);
+                    return tot_acc;
                 } else {
-                    float temp_acc = tot_acc + prev_cv * t;
-                    return temp_acc/value;
+                    float temp_acc = tot_acc + ((prev_cv * t)/value);
+                    return temp_acc;
                 }
             }
-        }
+    	}
 };
 
 

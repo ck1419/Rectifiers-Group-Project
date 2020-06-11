@@ -20,6 +20,7 @@ class base_class
         string name;       
         float value;
         float prev_cv = 0;              //Used for transient sims to store the previous voltage/current value
+	float tot_acc = 0;
         char type;
 
 
@@ -48,12 +49,19 @@ class base_class
             prev_cv = cv;
         }
         
+	//Returns the previous value of current/voltage
+	virtual float return_prev_cv(){
+	    return prev_cv;
+	}
 
         //Returns current/voltage/resistance depending on subclass (Will be overwritten in the appropriate subclasses)
         virtual float return_value(float t, bool final_loop_checker){
             return 1;
         }
-        
+
+	virtual float return_tot_acc(){
+	    return tot_acc;
+	}
 
         //Used for nonlinear components and will be overwritten. Function is here to allow access to them in the base_class vector
         virtual base_class* return_Req(){
