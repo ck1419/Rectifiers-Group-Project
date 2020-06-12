@@ -3,15 +3,16 @@
 #include "node.hpp"
 #include "source.hpp"
 #include "nonlinear_component.hpp"
+#include <iostream>
 #ifndef current_matrix_hpp
 #define current_matrix_hpp
 using namespace std;
 
 
-vector<float> find_current(vector<base_class*> all_components, int matrix_base_size, int voltage_count, int capacitor_count, float t, float time_step, bool final_loop_checker){
+vector<float> find_current(vector<base_class*> all_components, int matrix_base_size, int voltage_count, int capacitor_count, int inductor_count, float t, float time_step, bool final_loop_checker){
     //Creates current matrix filled with 0s
     vector<float> current_matrix;
-    for (int i=0; i<matrix_base_size+voltage_count+capacitor_count; i++){
+    for (int i=0; i<matrix_base_size+voltage_count+capacitor_count+inductor_count; i++){
         current_matrix.push_back(0);
     }
     //Scans through every component looking for sources

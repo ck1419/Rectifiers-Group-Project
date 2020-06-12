@@ -16,25 +16,20 @@ class basic_component: public base_class
             node1 = c_node1;
             node2 = c_node2;
             name = c_name;
-            if (type == 'L'){
-                tot_acc = 0;
-	    }
         }
 
 
         //Returns value of component depending on the type
         float return_value(float t, bool final_loop_checker){
-            if (type == 'R'){               //Resistor
-                return value;
-            } else if (type == 'C'){		//Capacitor
+            if (type == 'C'){		//Capacitor
 	            if (final_loop_checker){
         	        tot_acc += prev_cv * t;
                		return tot_acc/value;
-            	    } else {
+            	} else {
                 	float temp_acc = tot_acc + prev_cv * t;
                 	return temp_acc/value;
-               	    }
-            } else {                        //Inductor
+               	}
+            } else {                //Inductor and Resistor
                 return value;
             }
     	}
