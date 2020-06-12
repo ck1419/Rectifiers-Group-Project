@@ -318,10 +318,11 @@ int main()
 
 
             cout << endl;
+            
             cerr << "TIME: " << t << endl;
             cerr << "VOLTAGE " << endl << v << endl;
             cerr << "CURRENT " << endl << current << endl << endl << endl;
-
+            
             if(final_loop){
                 diode_counter = 0;
                 break;
