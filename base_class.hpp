@@ -70,6 +70,10 @@ class base_class
         virtual base_class* return_Ieq(){
             return this;
         }
+	virtual base_class* return_Rl(){
+	    return this;
+	}
+
 };
 
 
