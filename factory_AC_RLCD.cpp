@@ -41,9 +41,11 @@ int main()
     int component_counter = 0; //component counter for figuring out current number of component
     int voltage_source_counter = 0;
     int capacitor_counter = 0;
-    bool diode_checker = 0;
-    float prev_diode_vd = 0;
+    int inductor_counter = 0;
+    bool Oc_checker = 0;
+    bool Ss_checker = 0;
     bool looper = 1;
+    bool first_loop = 1;
     bool final_loop = 0;
     bool cond = 1;
     int diode_counter = 0;
@@ -86,7 +88,7 @@ int main()
         //creating conditionals for parsing in the various components from the netlist
         bool is_component = (name[0] == 'R' || name[0] == 'C' || name[0] == 'L');                //support for C and L comes later
         bool is_source = (name[0] == 'I' || name[0] == 'V'); //support for current sources and voltage sources
-	    bool is_nonlinear_component = (name[0] == 'D'); //support for diodes
+	bool is_nonlinear_component = (name[0] == 'D'); //support for diodes
 
 
         //creating dynamic storage for the nodes that have been inputted
@@ -104,7 +106,6 @@ int main()
             truenode2 = new node(stoi(node2));
         }
 
-
         //Add components/sources to component vector (WITH SINE SOURCE SUPPORT)
         if (is_component){
             components.push_back(new basic_component(input[0], value, truenode1, truenode2, name));
@@ -117,10 +118,14 @@ int main()
 
         if (input[0]=='V'){
             voltage_source_counter++;
-        } else if (input[0]=='C'){
+        } else if (input[0]=='C'){ //Checking for capacitors and whether steady state analysis is required
             capacitor_counter++;
-        } else if (input[0]=='D'){
-            diode_checker=1;
+	    Ss_checker = 1;
+        } else if (input[0]=='L'){ //Checking for inductors and whether steady state analysis is required
+	    inductor_counter++;
+	    Ss_checker = 1;
+	} else if (input[0]=='D'){ //Checking for diodes and whether operating point analysis is required
+            Oc_checker = 1;
         }
 
 
@@ -131,13 +136,14 @@ int main()
     }
 
 
-    /////////ARRAY STORAGE/////////
+    /////////CONDUCTANCE MATRIX STORAGE/////////
     const int h = node_vector.size()+voltage_source_counter+capacitor_counter-1;
-    const int w = node_vector.size()+voltage_source_counter+capacitor_counter-1;
-    MatrixXd g(h, w);
+    const int w = node_vector.size()+voltage_source_counter+inductor_counter-1;
+    MatrixXd Goc(w, w);
+    MatrixXd Gss(h, h);
+    MatrixXD G(h,h);
 
-
-    /////////RUNS TRANSIENT SIM//////////
+    /////////OUTPUTTING MATLAB HEADERS//////
     cout << "time";
     for(int b=0; b<node_vector.size();b++){
 	if(node_vector[b]->return_ID()!=0){
@@ -147,10 +153,126 @@ int main()
     for(int c=0; c<components.size();c++){
           cout << '\t' << "I(" << components[c]->return_name() << ")";
     }
-
     cout << endl;
+
+    //////////RUNNING TRANSIENT SIM/////////////////
     for (long double t=0; t<=stop_time; t+=time_step){
         while (looper){
+	    /////DOING OPERATING CONDITION ANALYSIS FOR DIODES
+	    if(Oc_checker){
+		if(first_loop){
+                //SET Goc MATRIX TO 0
+                for (int i=0; i<h; i++){
+                    for(int j=0; j<w; j++){
+                        Goc(i,j) = 0;
+                    }
+                }
+                //CREATES Goc MATRIX
+                for (int i=0; i<components.size(); i++){
+                    int node1_ID = components[i]->return_nodes()[0]->return_ID()-1;
+                    int node2_ID = components[i]->return_nodes()[1]->return_ID()-1;
+                    if (components[i]->return_type()=='R'){
+                        if (node1_ID!=-1){
+                            Goc(node1_ID, node1_ID) += 1/components[i]->return_value(0, 0);
+                        }
+                        if (node2_ID!=-1){
+                            Goc(node2_ID, node2_ID) += 1/components[i]->return_value(0, 0);
+                        }
+                        if (node1_ID!=-1 && node2_ID!=-1){
+                            Goc(node1_ID, node2_ID) -= 1/components[i]->return_value(0, 0);
+                            Goc(node2_ID, node1_ID) -= 1/components[i]->return_value(0, 0);
+                        }
+                    } else if (components[i]->return_type()=='V' || components[i]->return_type()=='L'){
+                        float position = stoi(components[i]->return_name().substr(1))+node_vector.size()-2;
+                        if (components[i]->return_type()=='L'){
+                            position += voltage_source_counter;
+                        }
+                        if (node1_ID!=-1){
+                            Goc(position, node1_ID) = 1;
+                            Goc(node1_ID, position) = 1;
+                        }
+                        if (node2_ID!=-1){
+                            Goc(position, node2_ID) = -1;
+                            Goc(node2_ID, position) = -1;
+                        }
+                    }
+		}
+                /////////CALCULATE CURRENT OC MATRIX//////////
+                MatrixXd currentoc(w,1);
+                vector<float> temp = find_current_oc(components, node_vector.size()-1, voltage_source_counter, inductor_counter, t, time_step, final_loo$
+                for(int f=0; f < temp.size(); f++){
+                    currentoc(f) = temp[f];
+                }
+
+                //////////CALCULATE VOLTAGE OC MATRIX//////////
+                MatrixXd Voc(w,1);
+                Voc = Goc.fullPivLu().solve(currentoc);
+		}
+	    }
+	    /////DOING STEADY STATE ANALYSIS FOR CAPACITORS/INDUCTORS
+	    if(Ss_checker){
+		if(first_loop){
+		//SET Gss MATRIX TO 0
+                for (int i=0; i<h; i++){
+                    for(int j=0; j<w; j++){
+                        Gss(i,j) = 0;
+                    }
+                }
+                //CREATES Gss MATRIX
+                for (int i=0; i<components.size(); i++){
+                    int node1_ID = components[i]->return_nodes()[0]->return_ID()-1;
+                    int node2_ID = components[i]->return_nodes()[1]->return_ID()-1;
+                    if (components[i]->return_type()=='R'){
+                        if (node1_ID!=-1){
+                            Gss(node1_ID, node1_ID) += 1/components[i]->return_value(0, 0);
+                        }
+                        if (node2_ID!=-1){
+                            Gss(node2_ID, node2_ID) += 1/components[i]->return_value(0, 0);
+                        }
+                        if (node1_ID!=-1 && node2_ID!=-1){
+                            Gss(node1_ID, node2_ID) -= 1/components[i]->return_value(0, 0);
+                            Gss(node2_ID, node1_ID) -= 1/components[i]->return_value(0, 0);
+                    	}
+                    } else if (components[i]->return_type()=='V' || components[i]->return_type()=='C'){
+                        float position = stoi(components[i]->return_name().substr(1))+node_vector.size()-2;
+                        if (components[i]->return_type()=='C'){
+                            position += voltage_source_counter;
+                        }
+                        if (node1_ID!=-1){
+                            Gss(position, node1_ID) = 1;
+                            Gss(node1_ID, position) = 1;
+                        }
+                        if (node2_ID!=-1){
+                            Gss(position, node2_ID) = -1;
+                            Gss(node2_ID, position) = -1;
+                        }
+                    } else if (components[i]->return_type()=='D'){
+                        if (node1_ID!=-1){
+                            Gss(node1_ID, node1_ID) += 1/components[i]->return_Req()->return_value(0, 0);
+                        }
+                        if (node2_ID!=-1){
+                            Gss(node2_ID, node2_ID) += 1/components[i]->return_Req()->return_value(0, 0);
+                        }
+                        if (node1_ID!=-1 && node2_ID!=-1){
+                            Gss(node1_ID, node2_ID) -= 1/components[i]->return_Req()->return_value(0, 0);
+                            Gss(node2_ID, node1_ID) -= 1/components[i]->return_Req()->return_value(0, 0);
+		    	}
+		    }
+                }
+		}
+                /////////CALCULATE CURRENT SS MATRIX//////////
+                MatrixXd currentss(h,1);
+                vector<float> temp = find_current(components, node_vector.size()-1, voltage_source_counter, capacitor_counter, t, time_step, final_loop);
+                for(int f=0; f < temp.size(); f++){
+		    currentss(f) = temp[f];
+                }
+
+                //////////CALCULATE VOLTAGE SS MATRIX//////////
+                MatrixXd Vss(h,1);
+                Vss = Gss.fullPivLu().solve(currentss);
+
+	        }
+
             if(cond){
                 final_loop = 0;
 

@@ -292,10 +292,18 @@ int main()
                     float resistor_voltage2 = 0;
                     if (components[s]->return_nodes()[1]->return_ID()-1 != -1){
                         resistor_voltage1 = v((components[s]->return_nodes()[1]->return_ID()-1), 0);
-                    }
+/* 			if(components[s]->return_nodes()[1]->return_nodes.size()==2)
+			{
+			    resistor_voltage1 = 0;
+			}
+*/                  }
                     if (components[s]->return_nodes()[0]->return_ID()-1 != -1){
                         resistor_voltage2 = v((components[s]->return_nodes()[0]->return_ID()-1), 0);
-                    }
+/*                    	if(components[s]->return_nodes()[0]->return_nodes.size()==2)
+			{
+			    resistor_voltage2 = 0;
+			}
+*/		    }
                     float resistor_voltage = resistor_voltage1-resistor_voltage2;
                     cout << '\t' << resistor_voltage * 1/(components[s]->return_value(t, final_loop));
 
