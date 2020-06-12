@@ -33,11 +33,8 @@ vector<float> find_current(vector<base_class*> all_components, int matrix_base_s
         }
         //Add inductor values to matrix
         else if (all_components[i]->return_type() == 'L'){
-            if (all_components[i]->return_nodes()[1]->return_ID() != 0){
-                current_matrix[ all_components[i]->return_nodes()[1]->return_ID()-1 ] += all_components[i]->return_value(time_step, final_loop_checker);
-            }
             if (all_components[i]->return_nodes()[0]->return_ID() != 0){
-                current_matrix[ all_components[i]->return_nodes()[0]->return_ID()-1 ] -= all_components[i]->return_value(time_step, final_loop_checker);
+                current_matrix[ stoi(all_components[i]->return_name().substr(1)) + matrix_base_size+voltage_count+capacitor_count -1] = all_components[i]->return_tot_acc();
             }
         }
         //Add voltage values to the matrix

@@ -8,9 +8,6 @@
 //Class for RCL components
 class basic_component: public base_class
 {
-    protected:
-    base_class* Rl;
-
     public:
         //Constructor
         basic_component(char c_type, float c_value, node *c_node1, node *c_node2, string c_name){
@@ -21,7 +18,6 @@ class basic_component: public base_class
             name = c_name;
             if (type == 'L'){
                 tot_acc = 0;
-            	Rl = new basic_component('R', 10000000, c_node1, c_node2, "R_inductor");
 	    }
         }
 
@@ -39,20 +35,9 @@ class basic_component: public base_class
                 	return temp_acc/value;
                	    }
             } else {                        //Inductor
-                if(final_loop_checker){
-		            tot_acc += (prev_cv * t)/value;
-		            return tot_acc;
-                } else {
-                    float temp_acc = tot_acc + (prev_cv * t)/value;
-		            return temp_acc;
-                }
+                return value;
             }
     	}
-
-	base_class* return_Rl(){
-	    return Rl;
-	}
-
 };
 
 

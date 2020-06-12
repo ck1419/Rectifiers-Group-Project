@@ -63,6 +63,10 @@ class base_class
 	    return tot_acc;
 	}
 
+	virtual void set_tot_acc(float acc){
+	    tot_acc += acc;
+	}
+
         //Used for nonlinear components and will be overwritten. Function is here to allow access to them in the base_class vector
         virtual base_class* return_Req(){
             return this;
