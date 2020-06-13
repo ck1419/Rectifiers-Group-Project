@@ -9,5 +9,5 @@ time <final_tests/test_7.txt ./simulator_improved >output_improved.txt
 echo "ORIGINAL TIME:"
 time <final_tests/test_7.txt ./simulator >output.txt
 
-diff output_improved.txt working_test.txt
+diff output_improved.txt output.txt
 echo "OK"

@@ -39,14 +39,14 @@ int main()
         double frequency = 0;
         double amplitude = 0;
         ss >> name;
-        if (name[0]=='*'){
+        if (name[0]=='*'){          //Checks for comments in the netlist
             continue;
         }
         if (name[0]=='.'){          //Checks for end of file (.tran 0 <stop time> 0 <timestep>) followed by (.end)
             ss >> temp_value >> temp_value;       //Removes dummy 0 in .trans
             stop_time = scientific_converter(temp_value);
             ss >> temp_value >> temp_value;       //Removes dummy 0 after 
-            time_step = scientific_converter(temp_value);
+            time_step = min(scientific_converter(temp_value), stop_time/1e5);       //Use system value if user value is bigger
             break;                  //Stops loop to avoid reading .end creating run time errors
         } else {                    //Parser for RLC and sources
             ss >> node1;
@@ -66,6 +66,13 @@ int main()
                     value = scientific_converter(temp_value);
                 }      
             }
+        }
+
+
+        //CHECKS FOR SHORT CIRCUITED COMPONENTS
+        if (node1 == node2){
+            cout << "SHORT CIRCUITED COMPONENT, PLEASE FIX THE NETLIST BEFORE TRYING AGAIN" << endl;
+            exit(1);
         }
 
 
