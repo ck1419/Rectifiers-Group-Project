@@ -230,7 +230,12 @@ int main()
                         if (components[i]->return_nodes()[1]->return_ID() != 0){
                             diode_v2 = voc((components[i]->return_nodes()[1]->return_ID()-1) , 0);
                         }
-                        components[i]->set_prev_cv(diode_v2-diode_v1);
+			if(diode_v2-diode_v1 < 0.7){
+			    components[i]->set_prev_cv(diode_v2-diode_v1);
+			}
+			else{
+			    components[i]->set_prev_cv(0.7);
+                        }
                     }
                 }
 	        }
