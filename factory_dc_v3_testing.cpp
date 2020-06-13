@@ -226,8 +226,7 @@ int main()
                         }
                     }
                 }
-	        }
-
+		}
             if(cond){
                 final_loop = 0;
 
@@ -299,7 +298,7 @@ int main()
                 }else{
                     diode_counter++;
                 }
-                if(diode_counter == 5){
+                if(diode_counter == 10){
                     final_loop = 1;
 		            oc_looper = 1;
                 }
