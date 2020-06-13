@@ -31,6 +31,9 @@ vector<float> find_current(vector<base_class*> all_components, int matrix_base_s
             if (all_components[i]->return_Ieq()->return_nodes()[1]->return_ID() != 0){
                 current_matrix[ all_components[i]->return_Ieq()->return_nodes()[1]->return_ID()-1 ] += all_components[i]->return_Ieq()->return_value(t, 0);
             }
+	    if (all_components[i]->return_Ieq()->return_nodes()[0]->return_ID() != 0){
+                current_matrix[ all_components[i]->return_Ieq()->return_nodes()[0]->return_ID()-1 ] -= all_components[i]->return_Ieq()->return_value(t, 0);
+	    }
         }
         //Add inductor values to matrix
         else if (all_components[i]->return_type() == 'L'){
@@ -48,6 +51,34 @@ vector<float> find_current(vector<base_class*> all_components, int matrix_base_s
         else if(all_components[i]->return_type() == 'C'){
             if (all_components[i]->return_nodes()[0]->return_ID() != 0){
                 current_matrix[ stoi(all_components[i]->return_name().substr(1)) + matrix_base_size+voltage_count -1] = all_components[i]->return_value(time_step, final_loop_checker);
+            }
+        }
+    }
+    return current_matrix;
+}
+
+
+vector<float> find_currentoc(vector<base_class*> all_components, int matrix_base_size, int voltage_count, int inductor_count, float t){
+    //Creates current matrix filled with 0s
+    vector<float> current_matrix;
+    for (int i=0; i<matrix_base_size+voltage_count+inductor_count; i++){
+        current_matrix.push_back(0);
+    }
+    //Scans through every component looking for sources
+    for (int i=0; i<all_components.size(); i++){
+        //Add values to the current matrix
+        if (all_components[i]->return_type() == 'I'){
+            if (all_components[i]->return_nodes()[1]->return_ID() != 0){
+                current_matrix[ all_components[i]->return_nodes()[1]->return_ID()-1 ] += all_components[i]->return_value(t, 0);
+            }
+            if (all_components[i]->return_nodes()[0]->return_ID() != 0){
+                current_matrix[ all_components[i]->return_nodes()[0]->return_ID()-1 ] -= all_components[i]->return_value(t, 0);
+            }
+        }
+        //Add voltage values to the matrix
+        else if (all_components[i]->return_type() == 'V'){
+            if (all_components[i]->return_nodes()[0]->return_ID() != 0){
+                current_matrix[ stoi(all_components[i]->return_name().substr(1)) + matrix_base_size -1] = all_components[i]->return_value(t, 0);
             }
         }
     }
