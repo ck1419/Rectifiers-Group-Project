@@ -4,7 +4,7 @@
 #include "nonlinear_component_improved.hpp"
 #include "node.hpp"
 #include "current_matrix_improved.hpp"
-#include "scientific_converter.hpp"
+#include "scientific_converter_improved.hpp"
 #include "add_nodes_to_vector.hpp"
 #include <iostream>
 #include <sstream>
@@ -355,19 +355,6 @@ int main()
                         inductor_vector[i]->set_tot_acc(ind_current);
 		            }
                 }
-                for (int i=0; i<diode_vector.size(); i++){                  //STORE DIODE VALUES
-                    double diode_v1 = 0;
-                    double diode_v2 = 0;
-                    if (diode_vector[i]->return_nodes()[0]->return_ID() != 0){
-                        diode_v1 = v((diode_vector[i]->return_nodes()[0]->return_ID()-1) , 0);
-                    }
-                    if (diode_vector[i]->return_nodes()[1]->return_ID() != 0){
-                        diode_v2 = v((diode_vector[i]->return_nodes()[1]->return_ID()-1) , 0);
-                    }
-                    diode_vector[i]->set_prev_cv(diode_v2-diode_v1);
-                }
-
-
                 //OUTPUTS NODAL VOLTAGE EACH TIME STEP
                 cout << t;
                 for(int b=0; b<node_vector.size();b++){
@@ -414,7 +401,19 @@ int main()
                 cout << endl;
                 diode_counter = 0;
                 break;
-	        }
+	        } else {
+                for (int i=0; i<diode_vector.size(); i++){                  //STORE DIODE VALUES
+                    double diode_v1 = 0;
+                    double diode_v2 = 0;
+                    if (diode_vector[i]->return_nodes()[0]->return_ID() != 0){
+                        diode_v1 = v((diode_vector[i]->return_nodes()[0]->return_ID()-1) , 0);
+                    }
+                    if (diode_vector[i]->return_nodes()[1]->return_ID() != 0){
+                        diode_v2 = v((diode_vector[i]->return_nodes()[1]->return_ID()-1) , 0);
+                    }
+                    diode_vector[i]->set_prev_cv(diode_v2-diode_v1);
+                }
+            }
 	    }
     }
 }
