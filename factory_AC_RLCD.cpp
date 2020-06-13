@@ -141,7 +141,7 @@ int main()
     const int w = node_vector.size()+voltage_source_counter+inductor_counter-1;
     MatrixXd Goc(w, w);
     MatrixXd Gss(h, h);
-    MatrixXD G(h,h);
+    MatrixXd G(h,h);
 
     /////////OUTPUTTING MATLAB HEADERS//////
     cout << "time";
