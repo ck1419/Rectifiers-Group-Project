@@ -137,7 +137,7 @@ int main()
     	}
     }
     for(int c=0; c<components.size();c++){
-          cout << '\t' << "I(" << components[c]->return_name() << ")";
+        cout << '\t' << "I(" << components[c]->return_name() << ")";
     }
     cout << endl;
 
@@ -246,7 +246,9 @@ int main()
                 }
 
 
-                //CREATES G MATRIX
+                //////////////////////////////////////////////////////////////////////////
+
+                //CREATES G MATRIX BY GOING THROUGH EACH COMPONENT AND ADDING IT TO THE MATRIX
                 for (int i=0; i<resistor_vector.size(); i++){
                     int node1_ID = resistor_vector[i]->return_nodes()[0]->return_ID()-1;
                     int node2_ID = resistor_vector[i]->return_nodes()[1]->return_ID()-1;
@@ -317,6 +319,9 @@ int main()
                 }
 
 
+                //////////////////////////////////////////////////////////////////////////
+
+
                 if(!diode_checker){
                     cond = 0;
                     final_loop = 1;
@@ -330,7 +335,7 @@ int main()
             }
 
 
-            /////////CALCULATE CURRENT MATRIX//////////
+            //CALCULATE CURRENT MATRIX
             MatrixXd current(h,1);
             vector<double> temp = find_current(inductor_vector, capacitor_vector, voltage_vector, current_vector, diode_vector, t, time_step, final_loop, node_vector.size()-1);
             for(int f=0; f < temp.size(); f++){
@@ -338,49 +343,45 @@ int main()
             }
 
 
-            //////////CALCULATE VOLTAGE MATRIX//////////
+            //CALCULATE VOLTAGE MATRIX
             MatrixXd v(h,1);
             v = g.fullPivLu().solve(current);
-            if(final_loop){
+
+
+            //TO MAKE SURE THAT VALUES DONT UPDATE/OUTPUT DURING NEWTON-RAPHSON ITERATION UNLESS IT'S THE FINAL LOOP
+            if (final_loop){
+                for (int i=0; i<capacitor_vector.size(); i++){
+                    if (capacitor_vector[i]->return_nodes()[0]->return_ID() != 0){
+                        double cap_current = v((stoi(capacitor_vector[i]->return_name().substr(1))+node_vector.size()+voltage_source_counter-2), 0);
+                        capacitor_vector[i]->set_prev_cv(cap_current);
+                    }
+                }
+                for (int i=0; i<inductor_vector.size(); i++){
+                    if (inductor_vector[i]->return_nodes()[0]->return_ID() != 0){
+                        double ind_current = v((stoi(inductor_vector[i]->return_name().substr(1))+node_vector.size()+voltage_source_counter+capacitor_counter-2), 0);
+                        inductor_vector[i]->set_tot_acc(ind_current);
+		            }
+                }
+                for (int i=0; i<diode_vector.size(); i++){
+                    double diode_v1 = 0;
+                    double diode_v2 = 0;
+                    if (diode_vector[i]->return_nodes()[0]->return_ID() != 0){
+                        diode_v1 = v((diode_vector[i]->return_nodes()[0]->return_ID()-1) , 0);
+                    }
+                    if (diode_vector[i]->return_nodes()[1]->return_ID() != 0){
+                        diode_v2 = v((diode_vector[i]->return_nodes()[1]->return_ID()-1) , 0);
+                    }
+                    diode_vector[i]->set_prev_cv(diode_v2-diode_v1);
+                }
+
+                //OUTPUTS NODAL VOLTAGE EACH TIME STEP
                 cout << t;
                 for(int b=0; b<node_vector.size();b++){
                     if(node_vector[b]->return_ID()!=0){
-                            cout << '\t' << v((node_vector[b]->return_ID()-1),0);
+                        cout << '\t' << v((node_vector[b]->return_ID()-1),0);
                     }
                 }
 	        }
-
-
-            ////////INPUTTING NEW VALUES INTO PREV VARIABLES////////////////
-            for (int i=0; i<components.size(); i++){
-                ///////////SETTING CAPACTIOR PREVIOUS VALUES (CURRENT)//////////////
-                if (components[i]->return_type()=='C' && final_loop){
-                    if (components[i]->return_nodes()[0]->return_ID() != 0){
-                        double cap_current = v((stoi(components[i]->return_name().substr(1))+node_vector.size()+voltage_source_counter-2), 0);
-                        components[i]->set_prev_cv(cap_current);
-                    }
-
-                ///////////SETTING INDUCTOR PREVIOUS VALUES (VOLTAGE)///////////////
-                }else if (components[i]->return_type() == 'L' && final_loop){
-                    if (components[i]->return_nodes()[0]->return_ID() != 0){
-                        double ind_current = v((stoi(components[i]->return_name().substr(1))+node_vector.size()+voltage_source_counter+capacitor_counter-2), 0);;
-                        components[i]->set_tot_acc(ind_current);
-		            }
-
-                //////////SETTING DIODE PREVIOUS VALUES
-                }else if (components[i]->return_type() == 'D' && !final_loop){
-                    double diode_v1 = 0;
-                    double diode_v2 = 0;
-                    if (components[i]->return_nodes()[0]->return_ID() != 0){
-                        diode_v1 = v((components[i]->return_nodes()[0]->return_ID()-1) , 0);
-                    }
-                    if (components[i]->return_nodes()[1]->return_ID() != 0){
-                        diode_v2 = v((components[i]->return_nodes()[1]->return_ID()-1) , 0);
-                    }
-                    components[i]->set_prev_cv(diode_v2-diode_v1);
-                }
-            }
-
 
             for (int s=0; s<components.size(); s++){
                 ///////////OUTPUTTING CAPACITOR CURRENT//////////////
