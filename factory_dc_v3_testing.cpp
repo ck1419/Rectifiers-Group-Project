@@ -220,9 +220,7 @@ int main()
                 voc = goc.fullPivLu().solve(currentoc);
 
                 //////////SETTING DIODE INITIAL VD
-                cerr << "FOR LOOP START" << endl;
                 for (int i=0; i<components.size(); i++){
-                    cerr << "TYPE: " << components[i]->return_type() << endl;
                     if (components[i]->return_type() == 'D'){
                         float diode_v1 = 0;
                         float diode_v2 = 0;
@@ -232,14 +230,11 @@ int main()
                         if (components[i]->return_nodes()[1]->return_ID() != 0){
                             diode_v2 = voc((components[i]->return_nodes()[1]->return_ID()-1) , 0);
                         }
-                        cerr << "SET PREV CV START" << endl;
                         components[i]->set_prev_cv(diode_v2-diode_v1);
-                        cerr << "SET PREV CV END" << endl;
                     }
                 }
 	        }
 
-            cerr << "OC_LOOPER OK" << endl;
 
 
             if(cond){
@@ -252,16 +247,12 @@ int main()
                     }
                 }
 
-                cerr << "SET 0 OK" << endl;
 
                 //CREATES G MATRIX
                 for (int i=0; i<components.size(); i++){
-                    cerr << "NODE START" << endl;
                     int node1_ID = components[i]->return_nodes()[0]->return_ID()-1;
                     int node2_ID = components[i]->return_nodes()[1]->return_ID()-1;
-                    cerr << "NODE END" << endl;
                     if (components[i]->return_type()=='R'){
-                        cerr << "R START" << endl;
                         if (node1_ID!=-1){
                             g(node1_ID, node1_ID) += 1/components[i]->return_value(0, 0);
                         }
@@ -272,13 +263,9 @@ int main()
                             g(node1_ID, node2_ID) -= 1/components[i]->return_value(0, 0);
                             g(node2_ID, node1_ID) -= 1/components[i]->return_value(0, 0);
                         }
-                        cerr << "R OK" << endl;
 	                } else if (components[i]->return_type()=='D'){
-                        cerr << "DIODE START" << endl;
                         if (node1_ID!=-1){
-                            cerr << "HERE" << endl;
                             g(node1_ID, node1_ID) += 1/components[i]->return_Req()->return_value(0, 0);
-                            cerr << "OK" << endl;
                         }
                         if (node2_ID!=-1){
                             g(node2_ID, node2_ID) += 1/components[i]->return_Req()->return_value(0, 0);
@@ -287,7 +274,6 @@ int main()
                             g(node1_ID, node2_ID) -= 1/components[i]->return_Req()->return_value(0, 0);
                             g(node2_ID, node1_ID) -= 1/components[i]->return_Req()->return_value(0, 0);
                         }
-                        cerr << "DIODE END" << endl; 
                     } else if (components[i]->return_type()=='V' || components[i]->return_type()=='C'){
                         float position = stoi(components[i]->return_name().substr(1))+node_vector.size()-2;
                         if (components[i]->return_type()=='C'){
@@ -315,7 +301,6 @@ int main()
 		            }
                 }
 
-                cerr << "FOR LOOP OK" << endl;
 
                 if(!diode_checker){
                     cond = 0;
@@ -328,10 +313,6 @@ int main()
 		            oc_looper = 1;
                 }
             }
-
-
-            cerr << "COND OK" << endl;
-
 
 
             /////////CALCULATE CURRENT MATRIX//////////
@@ -433,7 +414,7 @@ int main()
             }
 
 
-            cout << endl;
+            
             
             /*
             cerr << "TIME: " << t << endl;
@@ -442,6 +423,7 @@ int main()
             */
 
             if(final_loop){
+                cout << endl;
                 diode_counter = 0;
                 break;
             }

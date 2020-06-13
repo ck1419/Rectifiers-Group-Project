@@ -35,7 +35,6 @@ class nonlinear_component: public base_class
             if (type == 'D'){
                 prev_cv = cv;         
                 float I_component = Isat * ( pow(M_E, prev_cv/Vtemp)-1 );
-                cerr << "REQ VALUE: " << 1/(I_component/Vtemp) << endl;
 		if(prev_cv == 0){
 		    Req = new basic_component('R', 100000000000, node1, node2, "Req");
 		}else{
@@ -48,7 +47,6 @@ class nonlinear_component: public base_class
 
         //Returns the equivalent resistor
         base_class* return_Req(){
-            cerr << "RETURN REQ OK" << endl;
             return Req;
         }
 
