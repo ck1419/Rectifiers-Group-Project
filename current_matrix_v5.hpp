@@ -28,7 +28,6 @@ vector<double> find_current(vector<base_class*> all_components, int matrix_base_
         }
         //Add diode values to matrix
         else if (all_components[i]->return_type() == 'D'){
-            cerr << "DIODE CURRENT: " << all_components[i]->return_Ieq()->return_value(t, 0) << endl;
             if (all_components[i]->return_Ieq()->return_nodes()[1]->return_ID() != 0){
                 current_matrix[ all_components[i]->return_Ieq()->return_nodes()[1]->return_ID()-1 ] += all_components[i]->return_Ieq()->return_value(t, 0);
             }

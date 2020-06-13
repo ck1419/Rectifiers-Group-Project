@@ -402,12 +402,6 @@ int main()
 
 		        }
             }
-
-            
-            
-            cerr << "TIME: " << t << endl;
-            cerr << "VOLTAGE " << endl << v << endl;
-            cerr << "CURRENT " << endl << current << endl << endl << endl;
             
 
             if(final_loop){
@@ -417,5 +411,4 @@ int main()
             }
 	    }
     }
-    cerr << "CONDUCTANCE MATRIX: " << endl << g << endl;
 }

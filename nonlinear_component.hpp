@@ -41,16 +41,11 @@ class nonlinear_component: public base_class
                 }
                 prev_cv = cv;         
                 double I_component = Isat * ( pow(M_E, prev_cv/Vtemp)-1 );
-                cerr << "ISAT: " << Isat << endl;
-                cerr << "EXP: " << ( pow(M_E, prev_cv/Vtemp)-1 ) << endl;
-                cerr << "I_component: " << I_component << endl;
                 if(prev_cv == 0){
                     Req = new basic_component('R', 100000000000000000, node1, node2, "Req");
                 }else{
                     Req = new basic_component('R', 1/(I_component/Vtemp), node1, node2, "Req");
                 }
-                cerr << "STORING CURRENT: " << (I_component/Vtemp)*prev_cv << endl;
-                cerr << "PREV CV: " << prev_cv << endl;
                 Ieq = new source('I', "dc" , node2, node1, "Ieq", 0, (I_component - (I_component/Vtemp)*prev_cv), 0);
             }
         }
