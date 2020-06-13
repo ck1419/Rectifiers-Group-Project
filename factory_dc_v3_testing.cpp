@@ -124,6 +124,7 @@ int main()
             capacitor_counter++;
         } else if (input[0]=='D'){
             diode_checker=1;
+	    oc_looper=1;
         } else if (input[0]=='L'){
 	        inductor_counter++;
 	    }

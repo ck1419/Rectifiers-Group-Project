@@ -32,12 +32,16 @@ class nonlinear_component: public base_class
 
         //Returns value of previous iteration
         void set_prev_cv(float cv){
-            if (model == "D"){
+            if (type == 'D'){
                 prev_cv = cv;         
                 float I_component = Isat * ( pow(M_E, prev_cv/Vtemp)-1 );
                 cerr << "REQ VALUE: " << 1/(I_component/Vtemp) << endl;
-                Req = new basic_component('R', 1/(I_component/Vtemp), node1, node2, "Req");
-                Ieq = new source('I', "dc" , node1, node2, "Ieq", 0, (I_component - (I_component/Vtemp)*prev_cv), 0);
+		if(prev_cv == 0){
+		    Req = new basic_component('R', 100000000000, node1, node2, "Req");
+		}else{
+                    Req = new basic_component('R', 1/(I_component/Vtemp), node1, node2, "Req");
+                }
+		Ieq = new source('I', "dc" , node1, node2, "Ieq", 0, (I_component - (I_component/Vtemp)*prev_cv), 0);
             }
         }
 
