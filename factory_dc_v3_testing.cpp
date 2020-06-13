@@ -181,18 +181,6 @@ int main()
                             goc(node1_ID, node2_ID) -= 1/components[i]->return_value(0, 0);
                             goc(node2_ID, node1_ID) -= 1/components[i]->return_value(0, 0);
                         }
-                    } else if (components[i]->return_type()=='D'){
-                        components[i]->set_prev_cv(0);
-                        if (node1_ID!=-1){
-                            goc(node1_ID, node1_ID) += 1/components[i]->return_Req()->return_value(0, 0);
-                        }
-                        if (node2_ID!=-1){
-                            goc(node2_ID, node2_ID) += 1/components[i]->return_Req()->return_value(0, 0);
-                        }
-                        if (node1_ID!=-1 && node2_ID!=-1){
-                            goc(node1_ID, node2_ID) -= 1/components[i]->return_Req()->return_value(0, 0);
-                            goc(node2_ID, node1_ID) -= 1/components[i]->return_Req()->return_value(0, 0);
-                        }
                     } else if (components[i]->return_type()=='V' || components[i]->return_type()=='L'){
                         float position = stoi(components[i]->return_name().substr(1))+node_vector.size()-2;
                         if (components[i]->return_type()=='L'){
@@ -239,8 +227,6 @@ int main()
                     }
                 }
 	        }
-
-
 
             if(cond){
                 final_loop = 0;
