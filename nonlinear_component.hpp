@@ -3,7 +3,8 @@
 
 
 #include "base_class.hpp"
-
+#include <iostream>
+using namespace std;
 
 class nonlinear_component: public base_class
 {
@@ -34,6 +35,7 @@ class nonlinear_component: public base_class
             if (model == "D"){
                 prev_cv = cv;         
                 float I_component = Isat * ( pow(M_E, prev_cv/Vtemp)-1 );
+                cerr << "REQ VALUE: " << 1/(I_component/Vtemp) << endl;
                 Req = new basic_component('R', 1/(I_component/Vtemp), node1, node2, "Req");
                 Ieq = new source('I', "dc" , node1, node2, "Ieq", 0, (I_component - (I_component/Vtemp)*prev_cv), 0);
             }
@@ -42,6 +44,7 @@ class nonlinear_component: public base_class
 
         //Returns the equivalent resistor
         base_class* return_Req(){
+            cerr << "RETURN REQ OK" << endl;
             return Req;
         }
 

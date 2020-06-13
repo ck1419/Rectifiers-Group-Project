@@ -47,7 +47,8 @@ int main()
     bool final_loop = 0;
     bool cond = 1;
     int diode_counter = 0;
-    bool oc_looper = 0;
+    bool oc_looper = 1;
+
 
     /////////TAKE IN INDIVIDUAL LINES and define COMPONENTS/////////
     while (getline(cin, input)){
@@ -79,10 +80,11 @@ int main()
                 frequency = scientific_converter(temp_value);
             }else{                                  //Not a sine source
                 source_type = "dc";
-                value = scientific_converter(temp_value);
+                if (temp_value != "D"){
+                    value = scientific_converter(temp_value);
+                }      
             }
         }
-
 
         //creating conditionals for parsing in the various components from the netlist
         bool is_component = (name[0] == 'R' || name[0] == 'C' || name[0] == 'L');                //support for C and L comes later
@@ -154,9 +156,10 @@ int main()
     cout << endl;
     for (long double t=0; t<=stop_time; t+=time_step){
         while (looper){
-	    if(oc_looper){
+            if(oc_looper){
+                oc_looper = 0;
                 //SET Goc MATRIX TO 0
-                for (int i=0; i<h; i++){
+                for (int i=0; i<w; i++){
                     for(int j=0; j<w; j++){
                         goc(i,j) = 0;
                     }
@@ -178,7 +181,7 @@ int main()
                             goc(node2_ID, node1_ID) -= 1/components[i]->return_value(0, 0);
                         }
                     } else if (components[i]->return_type()=='D'){
-                            components[i]->set_prev_cv(0);
+                        components[i]->set_prev_cv(0);
                         if (node1_ID!=-1){
                             goc(node1_ID, node1_ID) += 1/components[i]->return_Req()->return_value(0, 0);
                         }
@@ -202,55 +205,62 @@ int main()
                             goc(position, node2_ID) = -1;
                             goc(node2_ID, position) = -1;
                         }
-		    }
-		}
-	    /////////CALCULATE CURRENT MATRIX FOR OC//////////
-            MatrixXd currentoc(w,1);
-            vector<float> temp = find_currentoc(components, node_vector.size()-1, voltage_source_counter, inductor_counter, t);
-            for(int f=0; f < temp.size(); f++){
-                currentoc(f, 0) = temp[f];
-            }
-
-            //////////CALCULATE VOLTAGE MATRIX FOR OC//////////
-            MatrixXd voc(w,1);
-            voc = goc.fullPivLu().solve(currentoc);
-
-            //////////SETTING DIODE INITIAL VD
-            for (int i=0; i<components.size(); i++){
-                if (components[i]->return_type() == 'D'){
-		    float diode_v1 = 0;
-		    float diode_v2 = 0;
-                    if (components[i]->return_nodes()[0]->return_ID() != 0){
-                        diode_v1 = voc((components[i]->return_nodes()[0]->return_ID()-1) , 0);
-		    }
-                    if (components[i]->return_nodes()[1]->return_ID() != 0){
-		  	diode_v2 = voc((components[i]->return_nodes()[1]->return_ID()-1) , 0);
-		    }
-		    components[i]->set_prev_cv(diode_v2-diode_v1);
+                    }
                 }
-            }
+                /////////CALCULATE CURRENT MATRIX FOR OC//////////
+                MatrixXd currentoc(w,1);
+                vector<float> temp = find_currentoc(components, node_vector.size()-1, voltage_source_counter, inductor_counter, t);
+                for(int f=0; f < temp.size(); f++){
+                    currentoc(f, 0) = temp[f];
+                }
 
-	    oc_looper = 0;
-	    }
+                //////////CALCULATE VOLTAGE MATRIX FOR OC//////////
+                MatrixXd voc(w,1);
+                voc = goc.fullPivLu().solve(currentoc);
+
+                //////////SETTING DIODE INITIAL VD
+                cerr << "FOR LOOP START" << endl;
+                for (int i=0; i<components.size(); i++){
+                    cerr << "TYPE: " << components[i]->return_type() << endl;
+                    if (components[i]->return_type() == 'D'){
+                        float diode_v1 = 0;
+                        float diode_v2 = 0;
+                        if (components[i]->return_nodes()[0]->return_ID() != 0){
+                            diode_v1 = voc((components[i]->return_nodes()[0]->return_ID()-1) , 0);
+                        }
+                        if (components[i]->return_nodes()[1]->return_ID() != 0){
+                            diode_v2 = voc((components[i]->return_nodes()[1]->return_ID()-1) , 0);
+                        }
+                        cerr << "SET PREV CV START" << endl;
+                        components[i]->set_prev_cv(diode_v2-diode_v1);
+                        cerr << "SET PREV CV END" << endl;
+                    }
+                }
+	        }
+
+            cerr << "OC_LOOPER OK" << endl;
 
 
             if(cond){
                 final_loop = 0;
 
-
                 //SET G MATRIX TO 0
                 for (int i=0; i<h; i++){
-                    for(int j=0; j<w; j++){
+                    for(int j=0; j<h; j++){
                         g(i,j) = 0;
                     }
                 }
 
+                cerr << "SET 0 OK" << endl;
 
                 //CREATES G MATRIX
                 for (int i=0; i<components.size(); i++){
+                    cerr << "NODE START" << endl;
                     int node1_ID = components[i]->return_nodes()[0]->return_ID()-1;
                     int node2_ID = components[i]->return_nodes()[1]->return_ID()-1;
+                    cerr << "NODE END" << endl;
                     if (components[i]->return_type()=='R'){
+                        cerr << "R START" << endl;
                         if (node1_ID!=-1){
                             g(node1_ID, node1_ID) += 1/components[i]->return_value(0, 0);
                         }
@@ -261,9 +271,13 @@ int main()
                             g(node1_ID, node2_ID) -= 1/components[i]->return_value(0, 0);
                             g(node2_ID, node1_ID) -= 1/components[i]->return_value(0, 0);
                         }
-	            } else if (components[i]->return_type()=='D'){
+                        cerr << "R OK" << endl;
+	                } else if (components[i]->return_type()=='D'){
+                        cerr << "DIODE START" << endl;
                         if (node1_ID!=-1){
+                            cerr << "HERE" << endl;
                             g(node1_ID, node1_ID) += 1/components[i]->return_Req()->return_value(0, 0);
+                            cerr << "OK" << endl;
                         }
                         if (node2_ID!=-1){
                             g(node2_ID, node2_ID) += 1/components[i]->return_Req()->return_value(0, 0);
@@ -272,6 +286,7 @@ int main()
                             g(node1_ID, node2_ID) -= 1/components[i]->return_Req()->return_value(0, 0);
                             g(node2_ID, node1_ID) -= 1/components[i]->return_Req()->return_value(0, 0);
                         }
+                        cerr << "DIODE END" << endl; 
                     } else if (components[i]->return_type()=='V' || components[i]->return_type()=='C'){
                         float position = stoi(components[i]->return_name().substr(1))+node_vector.size()-2;
                         if (components[i]->return_type()=='C'){
@@ -296,8 +311,10 @@ int main()
                             g(position, node2_ID) = time_step/(components[i]->return_value(0, 0));
                             g(node2_ID, position) = 1;
                         }
-		    }
+		            }
                 }
+
+                cerr << "FOR LOOP OK" << endl;
 
                 if(!diode_checker){
                     cond = 0;
@@ -307,9 +324,12 @@ int main()
                 }
                 if(diode_counter == 5){
                     final_loop = 1;
-		    oc_looper = 1;
+		            oc_looper = 1;
                 }
             }
+
+
+            cerr << "COND OK" << endl;
 
 
 
@@ -395,8 +415,8 @@ int main()
                 }else if (components[s]->return_type() == 'V' && final_loop){
                     cout << '\t' << v(stoi(components[s]->return_name().substr(1)) + node_vector.size()-2, 0);
 
-		///////////OUTPUTTING DIODE CURRENT///////////////////
-		}else if (components[s]->return_type() == 'D' && final_loop){
+		        ///////////OUTPUTTING DIODE CURRENT///////////////////
+		        }else if (components[s]->return_type() == 'D' && final_loop){
                     float resistor_voltage1 = 0;
                     float resistor_voltage2 = 0;
                     if (components[s]->return_nodes()[1]->return_ID()-1 != -1){
@@ -408,16 +428,18 @@ int main()
                     float resistor_voltage = resistor_voltage1-resistor_voltage2;
                     cout << '\t' << resistor_voltage * 1/(components[s]->return_Req()->return_value(t, final_loop)) + components[s]->return_Ieq()->return_value(t, final_loop);
 
-		}
+		        }
             }
 
 
             cout << endl;
             
+            /*
             cerr << "TIME: " << t << endl;
             cerr << "VOLTAGE " << endl << v << endl;
             cerr << "CURRENT " << endl << current << endl << endl << endl;
-            
+            */
+
             if(final_loop){
                 diode_counter = 0;
                 break;
