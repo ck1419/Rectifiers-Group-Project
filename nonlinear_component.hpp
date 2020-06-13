@@ -51,7 +51,7 @@ class nonlinear_component: public base_class
                 }
                 cerr << "STORING CURRENT: " << (I_component/Vtemp)*prev_cv << endl;
                 cerr << "PREV CV: " << prev_cv << endl;
-                Ieq = new source('I', "dc" , node1, node2, "Ieq", 0, (I_component - (I_component/Vtemp)*prev_cv), 0);
+                Ieq = new source('I', "dc" , node2, node1, "Ieq", 0, (I_component - (I_component/Vtemp)*prev_cv), 0);
             }
         }
 

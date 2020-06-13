@@ -114,7 +114,7 @@ int main()
         }else if (is_source){
             components.push_back(new source(input[0], source_type, truenode1, truenode2, name, frequency, value, amplitude));
         }else if (is_nonlinear_component){
-	        components.push_back(new nonlinear_component(input[0], truenode1, truenode2, name, "ideal_diode"));
+	        components.push_back(new nonlinear_component(input[0], truenode2, truenode1, name, "ideal_diode"));
         }
 
 
