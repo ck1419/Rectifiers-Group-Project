@@ -1,71 +1,85 @@
-#include "component.hpp"
+#include "base_class.hpp"
+#include "basic_component.hpp"
+#include "node.hpp"
+#include "source.hpp"
+#include "nonlinear_component.hpp"
+#include <iostream>
 #ifndef current_matrix_hpp
 #define current_matrix_hpp
 using namespace std;
 
-//RECURSIVE FUNCTION FOR SUPERNODES, TBD
-//RETURNS TOTAL OF VOLTAGES+CURRENT TO BE IN MAIN SUPERNODE NODE
-float supernode(base_class* current_component, float cumulative_value){
-    vector <base_class*> connected_components = current_component->return_nodes()[1]->return_components();
-    //Scans through  all the components connected at the negative side of the source
-    for (int i=0; i<connected_components.size(); i++){
-        //Checks for voltage sources, and makes sure that it won't loop back to old components
-        if (connected_components[i]->return_type() == 'V' && connected_components[i]->return_nodes()[0]->return_ID() == current_component->return_nodes()[1]->return_ID()){
-            //Recursively sends the total of the voltages up
-            cumulative_value = supernode(connected_components[i], cumulative_value);
-        }
-    }
-    return cumulative_value;
-}
 
-vector<float> find_current(vector<base_class*> all_components, vector<node*> all_nodes, float t){
+vector<double> find_current(vector<base_class*> all_components, int matrix_base_size, int voltage_count, int capacitor_count, int inductor_count, double t, double time_step, bool final_loop_checker){
     //Creates current matrix filled with 0s
-    vector<float> current_matrix, temp_voltage_holder;
-    for (int i=0; i<all_nodes.size()-1;i++){
+    vector<double> current_matrix;
+    for (int i=0; i<matrix_base_size+voltage_count+capacitor_count+inductor_count; i++){
         current_matrix.push_back(0);
-        temp_voltage_holder.push_back(0);
     }
-    
     //Scans through every component looking for sources
     for (int i=0; i<all_components.size(); i++){
         //Add values to the current matrix
         if (all_components[i]->return_type() == 'I'){
             if (all_components[i]->return_nodes()[1]->return_ID() != 0){
-                current_matrix[ all_components[i]->return_nodes()[1]->return_ID()-1 ] += all_components[i]->return_value(t);
+                current_matrix[ all_components[i]->return_nodes()[1]->return_ID()-1 ] += all_components[i]->return_value(t, 0);
+            }
+            if (all_components[i]->return_nodes()[0]->return_ID() != 0){
+                current_matrix[ all_components[i]->return_nodes()[0]->return_ID()-1 ] -= all_components[i]->return_value(t, 0);
             }
         }
-
-        //Keeps track of which nodes has voltage sources connected to it
-        if (all_components[i]->return_type() == 'V'){
-            //Checks for voltage sources that are connected to ground via negative side
-            if (all_components[i]->return_nodes()[0]->return_ID() != 0 && all_components[i]->return_nodes()[1]->return_ID() == 0){
-                temp_voltage_holder[ all_components[i]->return_nodes()[0]->return_ID()-1 ] = all_components[i]->return_value(t);
-            //via positive side
-            } else if (all_components[i]->return_nodes()[1]->return_ID() != 0 && all_components[i]->return_nodes()[0]->return_ID() == 0){
-                temp_voltage_holder[ all_components[i]->return_nodes()[1]->return_ID()-1 ] = all_components[i]->return_value(t);
-            //checks for top of supernode
-            } else {
-                bool supernode_top = true;
-                for (int i=0; i<all_components[i]->return_nodes()[0]->return_components().size(); i++){
-                    base_class* next_component = all_components[i]->return_nodes()[0]->return_components()[i];
-                    //Checks whether the connected component is a voltage source, and whether the negative end of it is connected to the current voltage source's positive end
-                    if (next_component->return_type()=='V' && next_component->return_nodes()[1] == all_components[i]->return_nodes()[0]){
-                        supernode_top = false;
-                    }
-                }
-                //If the current voltage source is the top of the supernode chain, run the supernode recursive code
-                if (supernode_top){
-                    temp_voltage_holder[ all_components[i]->return_nodes()[0]->return_ID()-1 ] = supernode(all_components[i], 0);
-                }
+        //Add diode values to matrix
+        else if (all_components[i]->return_type() == 'D'){
+            if (all_components[i]->return_Ieq()->return_nodes()[1]->return_ID() != 0){
+                current_matrix[ all_components[i]->return_Ieq()->return_nodes()[1]->return_ID()-1 ] += all_components[i]->return_Ieq()->return_value(t, 0);
             }
-            //all other voltage sources are ignored
+	        if (all_components[i]->return_Ieq()->return_nodes()[0]->return_ID() != 0){
+                current_matrix[ all_components[i]->return_Ieq()->return_nodes()[0]->return_ID()-1 ] -= all_components[i]->return_Ieq()->return_value(t, 0);
+	        }
+        }
+        //Add inductor values to matrix
+        else if (all_components[i]->return_type() == 'L'){
+            if (all_components[i]->return_nodes()[0]->return_ID() != 0){
+                current_matrix[ stoi(all_components[i]->return_name().substr(1)) + matrix_base_size+voltage_count+capacitor_count -1] = all_components[i]->return_tot_acc();
+            }
+        }
+        //Add voltage values to the matrix
+        else if (all_components[i]->return_type() == 'V'){
+            if (all_components[i]->return_nodes()[0]->return_ID() != 0){
+                current_matrix[ stoi(all_components[i]->return_name().substr(1)) + matrix_base_size -1] = all_components[i]->return_value(t, 0);
+            }
+        }
+        //Add capacitor values to the matrix
+        else if(all_components[i]->return_type() == 'C'){
+            if (all_components[i]->return_nodes()[0]->return_ID() != 0){
+                current_matrix[ stoi(all_components[i]->return_name().substr(1)) + matrix_base_size+voltage_count -1] = all_components[i]->return_value(time_step, final_loop_checker);
+            }
         }
     }
+    return current_matrix;
+}
 
-    //Replace the old current values with voltage values if connected to a voltage value
-    for (int i=0; i<all_nodes.size(); i++){
-        if (temp_voltage_holder[i] != 0){
-            current_matrix[i] = temp_voltage_holder[i];
+
+vector<double> find_currentoc(vector<base_class*> all_components, int matrix_base_size, int voltage_count, int inductor_count, double t){
+    //Creates current matrix filled with 0s
+    vector<double> current_matrix;
+    for (int i=0; i<matrix_base_size+voltage_count+inductor_count; i++){
+        current_matrix.push_back(0);
+    }
+    //Scans through every component looking for sources
+    for (int i=0; i<all_components.size(); i++){
+        //Add values to the current matrix
+        if (all_components[i]->return_type() == 'I'){
+            if (all_components[i]->return_nodes()[1]->return_ID() != 0){
+                current_matrix[ all_components[i]->return_nodes()[1]->return_ID()-1 ] += all_components[i]->return_value(t, 0);
+            }
+            if (all_components[i]->return_nodes()[0]->return_ID() != 0){
+                current_matrix[ all_components[i]->return_nodes()[0]->return_ID()-1 ] -= all_components[i]->return_value(t, 0);
+            }
+        }
+        //Add voltage values to the matrix
+        else if (all_components[i]->return_type() == 'V'){
+            if (all_components[i]->return_nodes()[0]->return_ID() != 0){
+                current_matrix[ stoi(all_components[i]->return_name().substr(1)) + matrix_base_size -1] = all_components[i]->return_value(t, 0);
+            }
         }
     }
     return current_matrix;

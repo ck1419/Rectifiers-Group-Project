@@ -12,7 +12,7 @@ class nonlinear_component: public base_class
         string model;
         base_class* Ieq;
         base_class* Req;
-        float Isat, Vtemp;
+        double Isat, Vtemp;
 
 
     public:
@@ -31,22 +31,22 @@ class nonlinear_component: public base_class
 
 
         //Returns value of previous iteration
-        void set_prev_cv(float cv){
+        void set_prev_cv(double cv){
             if (type == 'D'){
-		if(Req!=nullptr){
-			delete Req;
-		}
-		if(Ieq!=nullptr){
-			delete Ieq;
-		}
+                if(Req!=nullptr){
+                    delete Req;
+                }
+                if(Ieq!=nullptr){
+                    delete Ieq;
+                }
                 prev_cv = cv;         
-                float I_component = Isat * ( pow(M_E, prev_cv/Vtemp)-1 );
-		if(prev_cv == 0){
-		    Req = new basic_component('R', 100000000000000000, node1, node2, "Req");
-		}else{
+                double I_component = Isat * ( pow(M_E, prev_cv/Vtemp)-1 );
+                if(prev_cv == 0){
+                    Req = new basic_component('R', 100000000000000000, node1, node2, "Req");
+                }else{
                     Req = new basic_component('R', 1/(I_component/Vtemp), node1, node2, "Req");
                 }
-		Ieq = new source('I', "dc" , node1, node2, "Ieq", 0, (I_component - (I_component/Vtemp)*prev_cv), 0);
+                Ieq = new source('I', "dc" , node2, node1, "Ieq", 0, (I_component - (I_component/Vtemp)*prev_cv), 0);
             }
         }
 
