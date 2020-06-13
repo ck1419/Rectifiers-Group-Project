@@ -35,9 +35,9 @@ int main()
     vector<base_class*> components; //stores all the components in the circuit
     string node1, node2, name, temp_value, output_type, input, source_type;
     char type;
-    float value;
-    float stop_time = 0;
-    float time_step = 1;
+    double value;
+    double stop_time = 0;
+    double time_step = 1;
     int component_counter = 0; //component counter for figuring out current number of component
     int voltage_source_counter = 0;
     int capacitor_counter = 0;
@@ -53,8 +53,8 @@ int main()
     /////////TAKE IN INDIVIDUAL LINES and define COMPONENTS/////////
     while (getline(cin, input)){
 
-        float frequency = 0;
-        float amplitude = 0;
+        double frequency = 0;
+        double amplitude = 0;
 
         istringstream ss(input);
         ss >> name;
@@ -182,7 +182,7 @@ int main()
                             goc(node2_ID, node1_ID) -= 1/components[i]->return_value(0, 0);
                         }
                     } else if (components[i]->return_type()=='V' || components[i]->return_type()=='L'){
-                        float position = stoi(components[i]->return_name().substr(1))+node_vector.size()-2;
+                        double position = stoi(components[i]->return_name().substr(1))+node_vector.size()-2;
                         if (components[i]->return_type()=='L'){
                             position += voltage_source_counter;
                         }
@@ -198,7 +198,7 @@ int main()
                 }
                 /////////CALCULATE CURRENT MATRIX FOR OC//////////
                 MatrixXd currentoc(w,1);
-                vector<float> temp = find_currentoc(components, node_vector.size()-1, voltage_source_counter, inductor_counter, t);
+                vector<double> temp = find_currentoc(components, node_vector.size()-1, voltage_source_counter, inductor_counter, t);
                 for(int f=0; f < temp.size(); f++){
                     currentoc(f, 0) = temp[f];
                 }
@@ -210,8 +210,8 @@ int main()
                 //////////SETTING DIODE INITIAL VD
                 for (int i=0; i<components.size(); i++){
                     if (components[i]->return_type() == 'D'){
-                        float diode_v1 = 0;
-                        float diode_v2 = 0;
+                        double diode_v1 = 0;
+                        double diode_v2 = 0;
                         if (components[i]->return_nodes()[0]->return_ID() != 0){
                             diode_v1 = voc((components[i]->return_nodes()[0]->return_ID()-1) , 0);
                         }
@@ -265,7 +265,7 @@ int main()
                             g(node2_ID, node1_ID) -= 1/components[i]->return_Req()->return_value(0, 0);
                         }
                     } else if (components[i]->return_type()=='V' || components[i]->return_type()=='C'){
-                        float position = stoi(components[i]->return_name().substr(1))+node_vector.size()-2;
+                        double position = stoi(components[i]->return_name().substr(1))+node_vector.size()-2;
                         if (components[i]->return_type()=='C'){
                             position += voltage_source_counter;
                         }
@@ -278,7 +278,7 @@ int main()
                             g(node2_ID, position) = -1;
                         }
                     } else if (components[i]->return_type()=='L'){
-                        float position = stoi(components[i]->return_name().substr(1))+node_vector.size()-2+voltage_source_counter+capacitor_counter;
+                        double position = stoi(components[i]->return_name().substr(1))+node_vector.size()-2+voltage_source_counter+capacitor_counter;
                         g(position, position) = 1;
                         if(node1_ID!=-1){
                             g(position, node1_ID) = -time_step/(components[i]->return_value(0, 0));
@@ -307,7 +307,7 @@ int main()
 
             /////////CALCULATE CURRENT MATRIX//////////
             MatrixXd current(h,1);
-            vector<float> temp = find_current(components, node_vector.size()-1, voltage_source_counter, capacitor_counter, inductor_counter, t, time_step, final_loop);
+            vector<double> temp = find_current(components, node_vector.size()-1, voltage_source_counter, capacitor_counter, inductor_counter, t, time_step, final_loop);
             for(int f=0; f < temp.size(); f++){
                 current(f, 0) = temp[f];
             }
@@ -331,21 +331,21 @@ int main()
                 ///////////SETTING CAPACTIOR PREVIOUS VALUES (CURRENT)//////////////
                 if (components[i]->return_type()=='C' && final_loop){
                     if (components[i]->return_nodes()[0]->return_ID() != 0){
-                        float cap_current = v((stoi(components[i]->return_name().substr(1))+node_vector.size()+voltage_source_counter-2), 0);
+                        double cap_current = v((stoi(components[i]->return_name().substr(1))+node_vector.size()+voltage_source_counter-2), 0);
                         components[i]->set_prev_cv(cap_current);
                     }
 
                 ///////////SETTING INDUCTOR PREVIOUS VALUES (VOLTAGE)///////////////
                 }else if (components[i]->return_type() == 'L' && final_loop){
                     if (components[i]->return_nodes()[0]->return_ID() != 0){
-                        float ind_current = v((stoi(components[i]->return_name().substr(1))+node_vector.size()+voltage_source_counter+capacitor_counter-2), 0);;
+                        double ind_current = v((stoi(components[i]->return_name().substr(1))+node_vector.size()+voltage_source_counter+capacitor_counter-2), 0);;
                         components[i]->set_tot_acc(ind_current);
 		            }
 
                 //////////SETTING DIODE PREVIOUS VALUES
                 }else if (components[i]->return_type() == 'D' && !final_loop){
-                    float diode_v1 = 0;
-                    float diode_v2 = 0;
+                    double diode_v1 = 0;
+                    double diode_v2 = 0;
                     if (components[i]->return_nodes()[0]->return_ID() != 0){
                         diode_v1 = v((components[i]->return_nodes()[0]->return_ID()-1) , 0);
                     }
@@ -368,15 +368,15 @@ int main()
 
                 ///////////OUTPUTTING RESISTOR CURRENT///////////////
                 }else if (components[s]->return_type() == 'R' && final_loop){
-                    float resistor_voltage1 = 0;
-                    float resistor_voltage2 = 0;
+                    double resistor_voltage1 = 0;
+                    double resistor_voltage2 = 0;
                     if (components[s]->return_nodes()[1]->return_ID()-1 != -1){
                         resistor_voltage1 = v((components[s]->return_nodes()[1]->return_ID()-1), 0);
                     }
                     if (components[s]->return_nodes()[0]->return_ID()-1 != -1){
                         resistor_voltage2 = v((components[s]->return_nodes()[0]->return_ID()-1), 0);
        		    }
-                    float resistor_voltage = resistor_voltage1-resistor_voltage2;
+                    double resistor_voltage = resistor_voltage1-resistor_voltage2;
                     cout << '\t' << resistor_voltage * 1/(components[s]->return_value(t, final_loop));
 
                 ///////////OUTPUTTING CURRENT SOURCE CURRENT///////////////
@@ -389,28 +389,26 @@ int main()
 
 		        ///////////OUTPUTTING DIODE CURRENT///////////////////
 		        }else if (components[s]->return_type() == 'D' && final_loop){
-                    float resistor_voltage1 = 0;
-                    float resistor_voltage2 = 0;
+                    double resistor_voltage1 = 0;
+                    double resistor_voltage2 = 0;
                     if (components[s]->return_nodes()[1]->return_ID()-1 != -1){
                         resistor_voltage1 = v((components[s]->return_nodes()[1]->return_ID()-1), 0);
                     }
                     if (components[s]->return_nodes()[0]->return_ID()-1 != -1){
                         resistor_voltage2 = v((components[s]->return_nodes()[0]->return_ID()-1), 0);
                     }
-                    float resistor_voltage = resistor_voltage1-resistor_voltage2;
+                    double resistor_voltage = resistor_voltage1-resistor_voltage2;
                     cout << '\t' << resistor_voltage * 1/(components[s]->return_Req()->return_value(t, final_loop)) + components[s]->return_Ieq()->return_value(t, final_loop);
 
 		        }
             }
 
-
             
             
-            /*
             cerr << "TIME: " << t << endl;
             cerr << "VOLTAGE " << endl << v << endl;
             cerr << "CURRENT " << endl << current << endl << endl << endl;
-            */
+            
 
             if(final_loop){
                 cout << endl;

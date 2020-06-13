@@ -9,9 +9,9 @@
 using namespace std;
 
 
-vector<float> find_current(vector<base_class*> all_components, int matrix_base_size, int voltage_count, int capacitor_count, int inductor_count, float t, float time_step, bool final_loop_checker){
+vector<double> find_current(vector<base_class*> all_components, int matrix_base_size, int voltage_count, int capacitor_count, int inductor_count, double t, double time_step, bool final_loop_checker){
     //Creates current matrix filled with 0s
-    vector<float> current_matrix;
+    vector<double> current_matrix;
     for (int i=0; i<matrix_base_size+voltage_count+capacitor_count+inductor_count; i++){
         current_matrix.push_back(0);
     }
@@ -28,12 +28,13 @@ vector<float> find_current(vector<base_class*> all_components, int matrix_base_s
         }
         //Add diode values to matrix
         else if (all_components[i]->return_type() == 'D'){
+            cerr << "DIODE CURRENT: " << all_components[i]->return_Ieq()->return_value(t, 0) << endl;
             if (all_components[i]->return_Ieq()->return_nodes()[1]->return_ID() != 0){
                 current_matrix[ all_components[i]->return_Ieq()->return_nodes()[1]->return_ID()-1 ] += all_components[i]->return_Ieq()->return_value(t, 0);
             }
-	    if (all_components[i]->return_Ieq()->return_nodes()[0]->return_ID() != 0){
+	        if (all_components[i]->return_Ieq()->return_nodes()[0]->return_ID() != 0){
                 current_matrix[ all_components[i]->return_Ieq()->return_nodes()[0]->return_ID()-1 ] -= all_components[i]->return_Ieq()->return_value(t, 0);
-	    }
+	        }
         }
         //Add inductor values to matrix
         else if (all_components[i]->return_type() == 'L'){
@@ -58,9 +59,9 @@ vector<float> find_current(vector<base_class*> all_components, int matrix_base_s
 }
 
 
-vector<float> find_currentoc(vector<base_class*> all_components, int matrix_base_size, int voltage_count, int inductor_count, float t){
+vector<double> find_currentoc(vector<base_class*> all_components, int matrix_base_size, int voltage_count, int inductor_count, double t){
     //Creates current matrix filled with 0s
-    vector<float> current_matrix;
+    vector<double> current_matrix;
     for (int i=0; i<matrix_base_size+voltage_count+inductor_count; i++){
         current_matrix.push_back(0);
     }
