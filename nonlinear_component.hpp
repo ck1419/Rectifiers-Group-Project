@@ -46,7 +46,7 @@ class nonlinear_component: public base_class
 		}else{
                     Req = new basic_component('R', 1/(I_component/Vtemp), node1, node2, "Req");
                 }
-		Ieq = new source('I', "dc" , node1, node2, "Ieq", 0, (I_component - (I_component/Vtemp)*prev_cv), 0);
+		Ieq = new source('I', "dc" , node2, node1, "Ieq", 0, (I_component - (I_component/Vtemp)*prev_cv), 0);
             }
         }
 
