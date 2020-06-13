@@ -1,6 +1,13 @@
 #!/bin/bash
 set -e
-g++ -I eigen-3.3.7/ main_code_improved.cpp -o simulator
-<final_tests/test_7.txt ./simulator >test.txt
-diff test.txt working_test.txt
+
+./build_simulator_improved.sh
+echo "IMPROVED TIME:"
+time <final_tests/test_7.txt ./simulator_improved >output_improved.txt
+
+./build_simulator.sh
+echo "ORIGINAL TIME:"
+time <final_tests/test_7.txt ./simulator >output.txt
+
+diff output_improved.txt working_test.txt
 echo "OK"
