@@ -8,5 +8,5 @@ R4 N006 N002 35k
 V3 N006 0 3
 V4 N004 N006 7
 R5 N004 N002 10k
-.op
+.trans 0 10 0 1m
 .end
