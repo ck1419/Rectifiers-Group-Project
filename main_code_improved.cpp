@@ -43,11 +43,17 @@ int main()
             continue;
         }
         if (name[0]=='.'){          //Checks for end of file (.tran 0 <stop time> 0 <timestep>) followed by (.end)
-            ss >> temp_value >> temp_value;       //Removes dummy 0 in .trans
-            stop_time = scientific_converter(temp_value);
-            ss >> temp_value >> temp_value;       //Removes dummy 0 after 
-            time_step = min(scientific_converter(temp_value), stop_time/1e4);       //Use system value if user value is bigger
-            break;                  //Stops loop to avoid reading .end creating run time errors
+            if(name[1]=='t'){
+                ss >> temp_value >> temp_value;       //Removes dummy 0 in .trans
+                stop_time = scientific_converter(temp_value);
+                ss >> temp_value >> temp_value;       //Removes dummy 0 after 
+                time_step = min(scientific_converter(temp_value), stop_time/1e4);       //Use system value if user value is bigger
+                break;                  //Stops loop to avoid reading .end creating run time errors
+            } else {                //Checks for other simulation types which arent supported
+                cout << "SIMULATION TYPE NOT SUPPORTED, PLEASE USE TRANSIENT ONLY";
+                exit(1);
+            }
+
         } else {                    //Parser for RLC and sources
             ss >> node1;
             ss >> node2;
