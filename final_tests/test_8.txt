@@ -1,0 +1,9 @@
+* /Users/yannichau/Downloads/test_8.asc
+V1 N001 0 SINE(0 5 1)
+D1 N002 N003 D
+R1 N002 N001 2k
+R2 N003 0 3k
+R3 N004 0 5k
+D2 N003 N004 D
+.tran 0 10 0 0.001
+.end

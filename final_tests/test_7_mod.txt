@@ -1,8 +1,9 @@
+* /Users/yannichau/Documents/EEE/Summer Term/final_tests/test_7.asc
 L1 N001 N002 10m
 L2 N002 N003 5m
 L3 N003 N004 20m
-C1 N003 0 1µ
-C2 N003 0 10µ
+C1 N003 0 1m
+C2 N003 0 10m
 R1 N004 N005 20k
 R2 N005 N006 10k
 R3 N006 0 30k

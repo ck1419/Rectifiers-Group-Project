@@ -1,0 +1,13 @@
+* /Users/yannichau/Documents/EEE/Summer Term/final_tests/test_1.asc
+I1 0 N005 SINE(0 10m 1000)
+V1 N001 N005 10
+V2 N002 N001 5
+R1 N006 N005 10k
+R2 N003 N002 40k
+R3 N006 N003 20k
+R4 N006 N002 35k
+V3 N006 0 3
+V4 N004 N006 7
+R5 N004 N002 10k
+.tran 0 10m 1u
+.end

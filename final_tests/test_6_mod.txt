@@ -1,0 +1,12 @@
+* /Users/yannichau/Documents/EEE/Summer Term/final_tests/test_5.asc
+R1 N002 N001 10k
+R2 N002 0 10k
+R3 N002 0 10k
+L1 N003 0 1m
+R4 N004 N003 10k
+I1 0 N001 SINE(0 1m 0.5)
+C1 N004 0 1µ
+V1 N002 N004 10
+R5 N004 N002 10k
+.tran 0 5 1m
+.end
