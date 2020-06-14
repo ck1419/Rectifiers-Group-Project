@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
+
+./build_simulator_improved.sh
+echo "IMPROVED TIME:"
+time <netlist.txt ./simulator_improved >output_improved.txt
+
 ./build_simulator.sh
-<final_tests/test_7.txt ./simulator >test.txt
-diff test.txt working_test.txt
-echo "OK"
+echo "ORIGINAL TIME:"
+time <netlist.txt ./simulator >output.txt
