@@ -46,7 +46,7 @@ int main()
             ss >> temp_value >> temp_value;       //Removes dummy 0 in .trans
             stop_time = scientific_converter(temp_value);
             ss >> temp_value >> temp_value;       //Removes dummy 0 after 
-            time_step = min(scientific_converter(temp_value), stop_time/1e4;       //Use system value if user value is bigger
+            time_step = min(scientific_converter(temp_value), stop_time/1e4);       //Use system value if user value is bigger
             break;                  //Stops loop to avoid reading .end creating run time errors
         } else {                    //Parser for RLC and sources
             ss >> node1;
