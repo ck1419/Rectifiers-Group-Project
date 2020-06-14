@@ -23,8 +23,8 @@ class nonlinear_component: public base_class
             node2 = c_node2;
             name = c_name;
             model = c_model;
-            Isat = 3e-9;
-            Vtemp = 0.025;
+            Isat = 1e-14;
+            Vtemp = 0.026;
             prev_cv = 0;
         }
 
